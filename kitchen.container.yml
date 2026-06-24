@@ -1,0 +1,32 @@
+---
+# see: https://kitchen.ci/docs/drivers/dokken/
+#
+# vanilla: public SUSE BCI base image. hardened: Iron Bank BCI base image
+# (registry1.dso.mil; requires an Iron Bank pull token).
+
+provisioner:
+  name: dummy
+
+driver:
+  name: dokken
+  pull_platform_image: false
+
+transport:
+  name: dokken
+
+platforms:
+  - name: bci-15
+
+suites:
+  - name: vanilla
+    driver:
+      image: <%= ENV['VANILLA_CONTAINER_IMAGE'] || "registry.suse.com/bci/bci-base:15.6" %>
+    verifier:
+      input_files:
+        - container.vanilla.inputs.yml
+  - name: hardened
+    driver:
+      image: <%= ENV['HARDENED_CONTAINER_IMAGE'] || "registry1.dso.mil/ironbank/suse/bci/bci-base:15.7" %>
+    verifier:
+      input_files:
+        - container.hardened.inputs.yml

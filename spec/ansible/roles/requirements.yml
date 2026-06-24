@@ -1,0 +1,14 @@
+roles:
+  # CIS benchmark remediation for SLE 15 -- used by the hardened suite because no
+  # STIG remediation playbook exists for SLES 15. See ansible-role-sles-hardened.yml.
+  - name: SUSE15-CIS
+    src: https://github.com/ansible-lockdown/SUSE15-CIS
+    version: 2.0.3
+
+collections:
+  - name: community.general
+    source: https://galaxy.ansible.com
+  - name: community.crypto
+    source: https://galaxy.ansible.com
+  - name: ansible.posix
+    source: https://galaxy.ansible.com

@@ -1,0 +1,12 @@
+# Pass/fail gate for the LXD VM "vanilla" (unhardened SLES 15) scan.
+#
+# compliance.min is 0 for now because the profile is freshly stubbed -- controls
+# have not been implemented yet, so an unhardened box has little to comply with.
+# Raise this as real controls land to lock in expected vanilla compliance and
+# catch regressions. error.total.max stays 0: a control that errors is a bug in
+# the control, never an acceptable result.
+compliance:
+  min: 0
+error:
+  total:
+    max: 0

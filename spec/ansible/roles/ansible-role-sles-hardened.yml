@@ -1,0 +1,27 @@
+---
+# Hardened SLES 15 suite.
+#
+# No DISA STIG remediation playbook exists for SLES 15; ansible-lockdown ships
+# only the CIS benchmark role (SUSE15-CIS). CIS is not the STIG, but it is the
+# closest available automated hardening baseline for SLE 15, so we use it to get
+# the box into a hardened state. The InSpec profile here still validates against
+# the STIG -- the CIS role just ensures the scan runs against a hardened target
+# rather than a stock image.
+- hosts:
+    - localhost
+  roles:
+    - roles/ansible-role-sles-vanilla
+    - roles/SUSE15-CIS
+  serial: 50
+  become: yes
+  vars:
+    # Apply CIS remediation without rebooting mid-Kitchen-run, keep our sudo login
+    # user working, and avoid the most lockout-prone options for an unattended CI
+    # VM. Tune these as the hardened baseline matures.
+    skip_reboot: true
+    suse15cis_uses_root: false
+    suse15cis_set_boot_pass: false
+    suse15cis_bootloader_password_hash: "changethispassword"
+    suse15cis_level_2: false
+    run_audit: false
+    setup_audit: false

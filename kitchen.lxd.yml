@@ -1,0 +1,81 @@
+---
+platforms:
+  - name: sles-15
+
+driver:
+  name: proxy
+  host: <%= ENV.fetch("KITCHEN_HOST") %>
+  username: <%= ENV.fetch("LXD_VM_USERNAME", "sles") %>
+  ssh_key: <%= ENV.fetch("KITCHEN_SSH_KEY") %>
+
+provisioner:
+  name: ansible_playbook
+  hosts: all
+  require_chef_for_busser: false
+  require_ruby_for_busser: false
+  ansible_binary_path: /usr/local/bin
+  ansible_verbose: true
+  roles_path: spec/ansible/roles
+  galaxy_ignore_certs: true
+  requirements_path: spec/ansible/roles/requirements.yml
+  requirements_collection_path: spec/ansible/roles/requirements.yml
+  ansible_extra_flags: <%= ENV['ANSIBLE_EXTRA_FLAGS'] %>
+
+suites:
+  - name: vanilla
+    provisioner:
+      playbook: spec/ansible/roles/ansible-role-sles-vanilla.yml
+    driver:
+      tags:
+        Name: Vanilla-<%= ENV['USER'] %>
+        CreatedBy: test-kitchen
+
+  - name: hardened
+    provisioner:
+      playbook: spec/ansible/roles/ansible-role-sles-hardened.yml
+    driver:
+      tags:
+        Name: Hardened-<%= ENV['USER'] %>
+        CreatedBy: test-kitchen
+
+lifecycle:
+  pre_converge:
+    - remote: |
+        echo "+++ Registering with SCC (if a regcode was provided) +++"
+        # The SLE-15 JeOS image ships with no repositories enabled. Registering
+        # against SUSE Customer Center turns on the package repos that the
+        # provisioning + hardening steps below need. The LXD launch step writes
+        # /etc/scc-regcode.env via cloud-init when the SCC_REGCODE secret is set;
+        # skipped automatically when absent, e.g. for an already-registered or
+        # internally mirrored image supplied via SLES_IMAGE_URL.
+        [ -f /etc/scc-regcode.env ] && . /etc/scc-regcode.env
+        if [ -n "${SCC_REGCODE:-}" ]; then
+          sudo SUSEConnect -r "$SCC_REGCODE" || true
+          sudo SUSEConnect -p sle-module-python3/15.6/x86_64 || true
+          sudo SUSEConnect -p sle-module-basesystem/15.6/x86_64 || true
+        else
+          echo "SCC_REGCODE not set; assuming repositories are already configured."
+        fi
+        echo "+++ Refreshing and updating Zypper packages +++"
+        sudo zypper --non-interactive --gpg-auto-import-keys refresh || true
+        sudo zypper --non-interactive update || true
+        echo ""
+        echo "+++ Installing needed packages for workflow and utility +++"
+        sudo zypper --non-interactive install -y bc bind-utils vim git wget gcc libffi-devel libopenssl-devel python3 python3-pip || true
+        echo ""
+        echo "+++ Installing Ansible +++"
+        export PATH=/usr/local/bin:$PATH
+        sudo python3 -m pip install ansible jmespath
+        echo ""
+        echo "+++ Keeping the kitchen sudo user usable after the hardening phase +++"
+        sudo chage -d $(( $( date +%s ) / 86400 )) <%= ENV.fetch("LXD_VM_USERNAME", "sles") %> || true
+        echo ""
+        echo "+++ add cinc-auditor for local shell +++"
+        curl -L https://omnitruck.cinc.sh/install.sh | sudo bash -s -- -P cinc-auditor
+
+transport:
+  name: ssh
+  username: <%= ENV.fetch("LXD_VM_USERNAME", "sles") %>
+  ssh_key: <%= ENV.fetch("KITCHEN_SSH_KEY") %>
+  # https://github.com/neillturner/kitchen-ansible/issues/295
+  max_ssh_sessions: 2
