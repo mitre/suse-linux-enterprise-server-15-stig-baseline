@@ -17,7 +17,7 @@ If the command does not return any output, this is a finding.
 
 Note:
 The "-k" allows for specifying an arbitrary identifier. The string following "-k" does not need to match the example output above.)
-  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "rm" command. 
+  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "rm" command.
 
 Add or update the following rules in the "/etc/audit/rules.d/audit.rules" file:
 

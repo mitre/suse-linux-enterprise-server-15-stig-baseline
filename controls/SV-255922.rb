@@ -9,7 +9,7 @@ Check that the AIDE package is installed with the following command:
      $ sudo zypper if aide | grep "Installed"
      Installed: Yes
 
-If AIDE is not installed, ask the System Administrator how file integrity checks are performed on the system. 
+If AIDE is not installed, ask the System Administrator how file integrity checks are performed on the system.
 
 If there is no application installed to perform integrity checks, this is a finding.
 

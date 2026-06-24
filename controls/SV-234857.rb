@@ -12,7 +12,7 @@ Check that cached authentications cannot be used after one day with the followin
 memcache_timeout = 86400
 
 If "memcache_timeout" has a value greater than "86400", or is missing, this is a finding.'
-  desc 'fix', 'Configure NSS, if used by the SUSE operating system, to prohibit the use of cached authentications after one day. 
+  desc 'fix', 'Configure NSS, if used by the SUSE operating system, to prohibit the use of cached authentications after one day.
 
 Add or change the following line in "/etc/sssd/sssd.conf" just below the line "[nss]":
 

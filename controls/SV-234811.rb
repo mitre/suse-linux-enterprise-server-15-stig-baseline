@@ -7,7 +7,7 @@ The session lock is implemented at the point where session activity can be deter
 Regardless of where the session lock is determined and implemented, once invoked, the session lock must remain in place until the user reauthenticates. No other activity aside from reauthentication must unlock the system.
 
 '
-  desc 'check', 'Check that the SUSE operating system has the "vlock" package installed by running the following command: 
+  desc 'check', 'Check that the SUSE operating system has the "vlock" package installed by running the following command:
 
 > zypper search --installed-only --match-exact --provides vlock
 

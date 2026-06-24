@@ -1,6 +1,6 @@
 control 'SV-234952' do
   title 'The SUSE operating system must generate audit records for all uses of the init_module and finit_module system calls.'
-  desc 'Without generating audit records specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one. 
+  desc 'Without generating audit records specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
 
 Audit records can be generated from various components within the information system (e.g., module or policy filter). The system call rules are loaded into a matching engine that intercepts each syscall made by all programs on the system. Therefore, it is very important to use syscall rules only when absolutely necessary, since these affect performance. The more rules, the bigger the performance hit. The performance can be helped, however, by combining syscalls into one rule whenever possible.
 
@@ -18,7 +18,7 @@ If both the "b32" and "b64" audit rules are not defined for the init_module" and
 
 Note:
 The "-k" allows for specifying an arbitrary identifier. The string following "-k" does not need to match the example output above.'
-  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "init_module" and "finit_module" system calls. 
+  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "init_module" and "finit_module" system calls.
 
 Add or update the following rules to "/etc/audit/rules.d/audit.rules":
 

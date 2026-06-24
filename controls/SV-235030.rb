@@ -1,7 +1,7 @@
 control 'SV-235030' do
   title 'The SUSE operating system default permissions must be defined in such a way that all authenticated users can only read and modify their own files.'
   desc 'Setting the most restrictive default permissions ensures that when new accounts are created, they do not have unnecessary access.'
-  desc 'check', 'Verify the SUSE operating system defines default permissions for all authenticated users in such a way that the users can only read and modify their own files. 
+  desc 'check', 'Verify the SUSE operating system defines default permissions for all authenticated users in such a way that the users can only read and modify their own files.
 
 Check the system default permissions with the following command:
 

@@ -13,7 +13,7 @@ Check that the interactive user account passwords are using a strong password ha
 
 $6$kcOnRq/5$NUEYPuyL.wghQwWssXRcLRFiiru7f5JPV6GaJhNC2aK5F3PZpE/BCCtwrxRc/AInKMNX3CdMw11m9STiql12f/
 
-Password hashes "!" or "*" indicate inactive accounts not available for logon and are not evaluated. 
+Password hashes "!" or "*" indicate inactive accounts not available for logon and are not evaluated.
 
 If any interactive user password hash does not begin with "$6", this is a finding.'
   desc 'fix', 'Configure the SUSE operating system to encrypt all stored passwords with a strong cryptographic hash.

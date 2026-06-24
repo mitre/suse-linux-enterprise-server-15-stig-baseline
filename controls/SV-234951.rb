@@ -1,6 +1,6 @@
 control 'SV-234951' do
   title 'The SUSE operating system must generate audit records for all uses of the delete_module system call.'
-  desc 'Without generating audit records specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one. 
+  desc 'Without generating audit records specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
 
 Audit records can be generated from various components within the information system (e.g., module or policy filter).
 
@@ -18,7 +18,7 @@ If both the "b32" and "b64" audit rules are not defined for the "unload_module" 
 
 Note:
 The "-k" allows for specifying an arbitrary identifier. The string following "-k" does not need to match the example output above.)
-  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "delete_module" system call. 
+  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "delete_module" system call.
 
 Add or update the following rules to "/etc/audit/rules.d/audit.rules":
 

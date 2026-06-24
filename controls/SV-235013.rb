@@ -3,7 +3,7 @@ control 'SV-235013' do
   desc "The security risk of using X11 forwarding is that the client's X11 display server may be exposed to attack when the SSH client requests forwarding. A system administrator may have a stance in which they want to protect clients that may expose themselves to attack by unwittingly requesting X11 forwarding, which can warrant a ''no'' setting.
 X11 forwarding should be enabled with caution. Users with the ability to bypass file permissions on the remote host (for the user's X11 authorization database) can access the local X11 display through the forwarded connection. An attacker may then be able to perform activities such as keystroke monitoring if the ForwardX11Trusted option is also enabled.
 If X11 services are not required for the system's intended function, they should be disabled or restricted as appropriate to the system’s needs."
-  desc 'check', %q(Determine if X11Forwarding is disabled. 
+  desc 'check', %q(Determine if X11Forwarding is disabled.
 
 Verify the SUSE operating system SSH daemon remote X forwarded connections for interactive users are disabled.
 

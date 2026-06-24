@@ -18,7 +18,7 @@ If both the "b32" and "b64" audit rules are not defined for the "setxattr", "fse
 
 Note:
 The "-k" allows for specifying an arbitrary identifier. The string following "-k" does not need to match the example output above.'
-  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "setxattr", "fsetxattr", "lsetxattr","removexattr", "fremovexattr", and "lremovexattr" system calls. 
+  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "setxattr", "fsetxattr", "lsetxattr","removexattr", "fremovexattr", and "lremovexattr" system calls.
 
 Add or update the following rules to "/etc/audit/rules.d/audit.rules":
 

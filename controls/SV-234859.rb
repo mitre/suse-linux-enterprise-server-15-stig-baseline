@@ -5,7 +5,7 @@ control 'SV-234859' do
 '
   desc 'check', 'Verify the SUSE operating system is running in FIPS mode by running the following command.
 
-> cat /proc/sys/crypto/fips_enabled 
+> cat /proc/sys/crypto/fips_enabled
 
 1
 

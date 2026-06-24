@@ -11,9 +11,9 @@ Associating event types with detected events in the SUSE operating system audit 
 
 Check that the "audit" package is installed by performing the following command:
 
-> zypper info audit | grep Installed 
+> zypper info audit | grep Installed
 
-i | audit | User Space Tools for 2.6 Kernel Auditing 
+i | audit | User Space Tools for 2.6 Kernel Auditing
 
 If the package "audit" is not installed on the system, then this is a finding.'
   desc 'fix', 'The SUSE operating system auditd package must be installed on the system. If it is not installed, use the following command to install it:

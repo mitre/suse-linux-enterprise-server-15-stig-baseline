@@ -29,7 +29,7 @@ Check the firewall configuration for any unnecessary or prohibited functions, po
 
 > sudo firewall-cmd --list-all
 
-Ask the System Administrator for the site or program PPSM Component Local Services Assessment (Component Local Services Assessment (CLSA). Verify the services allowed by the firewall match the PPSM CLSA. 
+Ask the System Administrator for the site or program PPSM Component Local Services Assessment (Component Local Services Assessment (CLSA). Verify the services allowed by the firewall match the PPSM CLSA.
 
 If there are any additional ports, protocols, or services that are not included in the PPSM CLSA, this is a finding.
 

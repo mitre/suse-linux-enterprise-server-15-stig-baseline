@@ -7,14 +7,14 @@ Audit processing failures include software/hardware errors, failures in the audi
 This requirement applies to each audit data storage repository (i.e., distinct information system component where audit records are stored), the centralized audit storage capacity of organizations (i.e., all audit data storage repositories combined), or both.'
   desc 'check', 'Verify the administrators are notified in the event of a SUSE operating system audit processing failure by inspecting "/etc/audit/auditd.conf".
 
-Check if the system is configured to send email to an account when it needs to notify an administrator with the following command: 
+Check if the system is configured to send email to an account when it needs to notify an administrator with the following command:
 
 > sudo grep action_mail /etc/audit/auditd.conf
 
 action_mail_acct = root
 
 If the value of the "action_mail_acct" keyword is not set to "root" and/or other accounts for security personnel, the "action_mail_acct" keyword is missing, or the returned line is commented out, this is a finding.'
-  desc 'fix', 'Configure the auditd service to notify the administrators in the event of a SUSE operating system audit processing failure. 
+  desc 'fix', 'Configure the auditd service to notify the administrators in the event of a SUSE operating system audit processing failure.
 
 Edit the following line in "/etc/audit/auditd.conf" to ensure that administrators are notified via email for those situations:
 

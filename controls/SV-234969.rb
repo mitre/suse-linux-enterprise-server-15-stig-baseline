@@ -21,10 +21,10 @@ If the audit records are not being written to a partition specifically created f
 Determine the threshold for the system to take action when 75 percent of the repository maximum audit record storage capacity is reached:
 
 > sudo grep -iw space_left /etc/audit/auditd.conf
-space_left = 225 
+space_left = 225
 
 If the value of the "space_left" keyword is not set to 25 percent of the total partition size, this is a finding.'
-  desc 'fix', 'Check the system configuration to determine the partition to which the audit records are written: 
+  desc 'fix', 'Check the system configuration to determine the partition to which the audit records are written:
 
 > sudo grep -iw log_file /etc/audit/auditd.conf
 

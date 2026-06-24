@@ -3,7 +3,7 @@ control 'SV-234863' do
   desc 'Previous versions of software components that are not removed from the information system after updates have been installed may be exploited by adversaries. Some information technology products may remove older versions of software automatically from the information system.'
   desc 'check', 'Verify the SUSE operating system removes all outdated software components after updated version have been installed by running the following command:
 
-> grep -i upgraderemovedroppedpackages /etc/zypp/zypp.conf 
+> grep -i upgraderemovedroppedpackages /etc/zypp/zypp.conf
 
 solver.upgradeRemoveDroppedPackages = true
 

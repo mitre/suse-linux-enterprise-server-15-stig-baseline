@@ -5,7 +5,7 @@ control 'SV-234831' do
 Selection of a cryptographic mechanism is based on the need to protect the integrity of organizational information. The strength of the mechanism is commensurate with the security category and/or classification of the information. Organizations have the flexibility to either encrypt all information on storage devices (i.e., full disk encryption) or encrypt specific data structures (e.g., files, records, or fields).
 
 '
-  desc 'check', 'Verify the SUSE operating system prevents unauthorized disclosure or modification of all information requiring at rest protection by using disk encryption. 
+  desc 'check', 'Verify the SUSE operating system prevents unauthorized disclosure or modification of all information requiring at rest protection by using disk encryption.
 
 Determine the partition layout for the system with the following command:
 
@@ -16,7 +16,7 @@ Device Boot Start End Sectors Size Id Type
 /dev/sda2 * 4208640 53479423 49270784 23.5G 83 Linux
 /dev/sda3 53479424 125829119 72349696 34.5G 83 Linux
 
-Verify the system partitions are all encrypted with the following command: 
+Verify the system partitions are all encrypted with the following command:
 
 > sudo more /etc/crypttab
 
@@ -25,10 +25,10 @@ cr_home  UUID=f5b8a790-14cb-4b82-882d-707d52f27765
 cr_swap  UUID=f2d86128-f975-478d-a5b0-25806c900eac
 
 
-Every persistent disk partition present on the system must have an entry in the file. 
+Every persistent disk partition present on the system must have an entry in the file.
 
 If any partitions other than pseudo file systems (such as /proc or /sys) are not listed or "/etc/crypttab" does not exist, this is a finding.'
-  desc 'fix', 'Configure the SUSE operating system to prevent unauthorized modification of all information at rest by using disk encryption. 
+  desc 'fix', 'Configure the SUSE operating system to prevent unauthorized modification of all information at rest by using disk encryption.
 
 Encrypting a partition in an already-installed system is more difficult because of the need to resize and change existing partitions. To encrypt an entire partition, dedicate a partition for encryption in the partition layout. The standard partitioning proposal as suggested by YaST (installation and configuration tool for Linux) does not include an encrypted partition by default. Add it manually in the partitioning dialog.
 

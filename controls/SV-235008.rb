@@ -17,7 +17,7 @@ The following command will find all SSH public key files on the system:
 If any file has a mode more permissive than "0644", this is a finding.)
   desc 'fix', 'Configure the SUSE operating system SSH daemon public host key files have mode "0644" or less permissive.
 
-Note: SSH public key files may be found in other directories on the system depending on the installation. 
+Note: SSH public key files may be found in other directories on the system depending on the installation.
 
 Change the mode of public host key files under "/etc/ssh" to "0644" with the following command:
 

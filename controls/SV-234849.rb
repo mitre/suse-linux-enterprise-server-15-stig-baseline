@@ -7,7 +7,7 @@ Synchronizing internal information system clocks provides uniformity of time sta
 Organizations should consider endpoints that may not have regular access to the authoritative time server (e.g., mobile, teleworking, and tactical endpoints).
 
 '
-  desc 'check', 'The SUSE operating system clock must be configured to synchronize to an authoritative DOD time source when the time difference is greater than one second. 
+  desc 'check', 'The SUSE operating system clock must be configured to synchronize to an authoritative DOD time source when the time difference is greater than one second.
 
 Check that the SUSE operating system clock must be configured to synchronize to an authoritative DOD time source when the time difference is greater than one second with the following command:
 
@@ -20,10 +20,10 @@ If nothing is returned, "maxpoll" is greater than "16", or is commented out, thi
 Verify the "chrony.conf" file is configured to an authoritative DOD time source by running the following command:
 
 > sudo grep -i server /etc/chrony.conf
-server 0.us.pool.ntp.mil 
+server 0.us.pool.ntp.mil
 
 If the parameter "server" is not set, is not set to an authoritative DOD time source, or is commented out, this is a finding.'
-  desc 'fix', 'The SUSE operating system clock must be configured to synchronize to an authoritative DOD time source when the time difference is greater than one second. 
+  desc 'fix', 'The SUSE operating system clock must be configured to synchronize to an authoritative DOD time source when the time difference is greater than one second.
 
 To configure the system clock to synchronize to an authoritative DOD time source at least every 24 hours, edit the file "/etc/chrony.conf". Add or correct the following lines by replacing "[time_source]" with an authoritative DOD time source:
 

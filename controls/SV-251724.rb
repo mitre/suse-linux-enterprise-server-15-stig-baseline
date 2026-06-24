@@ -1,6 +1,6 @@
 control 'SV-251724' do
   title 'The SUSE operating system must not be configured to bypass password requirements for privilege escalation.'
-  desc 'Without re-authentication, users may access resources or perform tasks for which they do not have authorization. 
+  desc 'Without re-authentication, users may access resources or perform tasks for which they do not have authorization.
 
 When operating systems provide the capability to escalate a functional capability, it is critical the user re-authenticate.
 

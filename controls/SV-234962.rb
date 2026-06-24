@@ -21,7 +21,7 @@ Check that AIDE is properly configured to protect the integrity of the audit too
 /usr/sbin/audispd p+i+n+u+g+s+b+acl+selinux+xattrs+sha512
 /usr/sbin/augenrules p+i+n+u+g+s+b+acl+selinux+xattrs+sha512
 
-If AIDE is properly configured to protect the integrity of the audit tools, all lines listed above will be returned from the command. 
+If AIDE is properly configured to protect the integrity of the audit tools, all lines listed above will be returned from the command.
 
 If one or more lines are missing, or is commented out, this is a finding.'
   desc 'fix', 'Configure the SUSE operating system file integrity tool to protect the integrity of the audit tools.

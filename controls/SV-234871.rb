@@ -12,7 +12,7 @@ Check the account inactivity value by performing the following command:
 INACTIVE=35
 
 If no output is produced, or if "INACTIVE" is not set to a value greater than "0" and less than or equal to "35", this is a finding.)
-  desc 'fix', 'Configure the SUSE operating system to disable account identifiers after 35 days of inactivity since the password expiration. 
+  desc 'fix', 'Configure the SUSE operating system to disable account identifiers after 35 days of inactivity since the password expiration.
 
 Run the following command to change the configuration for "useradd" to disable the account identifier after 35 days:
 

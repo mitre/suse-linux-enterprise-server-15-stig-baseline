@@ -12,12 +12,12 @@ root:x:0:0:root:/root:/bin/bash
 ...
 games:x:12:100:Games account:/var/games:/bin/bash
 
-Accounts such as "games" and "gopher" are not authorized accounts as they do not support authorized system functions. 
+Accounts such as "games" and "gopher" are not authorized accounts as they do not support authorized system functions.
 
 If the accounts on the system do not match the provided documentation, this is a finding.'
-  desc 'fix', 'Configure the SUSE operating system so all accounts on the system are assigned to an active system, application, or user account. 
+  desc 'fix', 'Configure the SUSE operating system so all accounts on the system are assigned to an active system, application, or user account.
 
-Remove accounts that do not support approved system activities or that allow for a normal user to perform administrative-level actions. 
+Remove accounts that do not support approved system activities or that allow for a normal user to perform administrative-level actions.
 
 Document all authorized accounts on the system.'
   impact 0.5
