@@ -24,12 +24,12 @@ jobs:
       PLATFORM: "sles-15"
       LC_ALL: "en_US.UTF-8"
       LXD_VM_USERNAME: "sles"
-      # SCC registration code (optional). The SLE-15 JeOS image has no
-      # repositories enabled out of the box, so zypper package installs in the
-      # provisioning step require registration. Leave unset to use a
-      # pre-registered / mirrored image via SLES_IMAGE_URL instead.
+      # SCC registration code. Not needed for the default openSUSE Leap image
+      # (open repos). Required only when SLES_IMAGE_URL points at a genuine SLES
+      # image, which has no repos enabled until registered.
       SCC_REGCODE: ${{ secrets.SCC_REGCODE }}
-      # Override to pin a different SLES service pack / build or internal mirror.
+      # Override the base image. Unset = openSUSE Leap 15.6. Set to an SCC
+      # registered / mirrored SLES 15 qcow2 (with SCC_REGCODE) for a real target.
       SLES_IMAGE_URL: ${{ vars.SLES_IMAGE_URL }}
     strategy:
       matrix:
@@ -73,7 +73,9 @@ jobs:
           echo "KITCHEN_SSH_KEY=$KEY" >> "$GITHUB_ENV"
           echo "KITCHEN_SSH_PUB=$KEY.pub" >> "$GITHUB_ENV"
 
-      - name: Download SLES 15 JeOS QCOW2
+      - name: Download base image QCOW2
+        # Defaults to openSUSE Leap 15.6; override with the SLES_IMAGE_URL variable
+        # (+ SCC_REGCODE) to target genuine SLES 15. See fetch-sles-image.sh.
         run: ./.github/scripts/fetch-sles-image.sh sles-image.qcow2
 
       - name: Repackage QCOW2 with grown disk and fixed GPT for LXD
@@ -91,13 +93,13 @@ jobs:
           architecture: x86_64
           creation_date: $(date +%s)
           properties:
-            description: "SLES 15 JeOS QCOW2"
-            os: "sles"
-            release: "15"
+            description: "SLES 15 STIG test target"
+            os: "opensuse"
+            release: "15.6"
           type: virtual-machine
           EOF
           tar -cf metadata.tar metadata.yaml
-          lxc image import metadata.tar disk.qcow2 --alias sles15-jeos
+          lxc image import metadata.tar disk.qcow2 --alias stig-target
 
       - name: Launch and wait for VM
         run: |
@@ -132,7 +134,7 @@ jobs:
           EOF
           fi
 
-          lxc launch sles15-jeos "$NAME" --vm \
+          lxc launch stig-target "$NAME" --vm \
             -c limits.memory=4GiB \
             -c cloud-init.user-data="$(cat cloud-init.yaml)"
 

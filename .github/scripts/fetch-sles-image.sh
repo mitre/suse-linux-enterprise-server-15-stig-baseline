@@ -1,21 +1,24 @@
 #!/usr/bin/env bash
-# Download a SLES 15 JeOS QCOW2 cloud image.
+# Download the base QCOW2 cloud image the profile is scanned against.
 #
-# Pulls a prebuilt SLES 15 JeOS "OpenStack-Cloud" qcow2 from SUSE's public image
-# repository. That image ships cloud-init, which the LXD launch step uses to
-# inject the Kitchen SSH user and key.
+# Defaults to openSUSE Leap 15.6 (the community sibling of SLES 15: same SLE 15
+# codebase, open repos, no registration required), which keeps CI self-contained.
+# The image ships cloud-init, which the LXD launch step uses to inject the Kitchen
+# SSH user and key.
 #
-# Override SLES_IMAGE_URL to pin a different service pack / build, or to point at
-# an internal mirror or an SCC-registered image.
+# For a genuine SLES 15 target, set SLES_IMAGE_URL to an SCC-registered / mirrored
+# SLES qcow2 and provide SCC_REGCODE so the repos resolve. Note Leap reports itself
+# as openSUSE, so controls keyed on vendor / os-release read differently than on
+# real SLES.
 #
 # Optional env:
-#   SLES_IMAGE_URL  -- full URL to a .qcow2 (default: SLE-15 JeOS OpenStack-Cloud)
+#   SLES_IMAGE_URL  -- full URL to a .qcow2 (default: openSUSE Leap 15.6 Minimal-VM)
 # Optional args:
 #   $1 -- output path (default: sles-image.qcow2)
 
 set -euo pipefail
 
-DEFAULT_URL="https://download.opensuse.org/repositories/SUSE:/Templates:/Images:/SLE-15/images/SLES15-JeOS.x86_64-15.0-OpenStack-Cloud-Build3.59.qcow2"
+DEFAULT_URL="https://download.opensuse.org/distribution/leap/15.6/appliances/openSUSE-Leap-15.6-Minimal-VM.x86_64-Cloud.qcow2"
 IMAGE_URL="${SLES_IMAGE_URL:-$DEFAULT_URL}"
 OUTPUT_FILE="${1:-sles-image.qcow2}"
 

@@ -42,12 +42,11 @@ lifecycle:
   pre_converge:
     - remote: |
         echo "+++ Registering with SCC (if a regcode was provided) +++"
-        # The SLE-15 JeOS image ships with no repositories enabled. Registering
-        # against SUSE Customer Center turns on the package repos that the
-        # provisioning + hardening steps below need. The LXD launch step writes
-        # /etc/scc-regcode.env via cloud-init when the SCC_REGCODE secret is set;
-        # skipped automatically when absent, e.g. for an already-registered or
-        # internally mirrored image supplied via SLES_IMAGE_URL.
+        # The default openSUSE Leap image already has working repos, so this is a
+        # no-op there. It exists for the genuine-SLES path: a SLES image has no
+        # repos enabled until registered, so the LXD launch step writes
+        # /etc/scc-regcode.env via cloud-init when SCC_REGCODE is set, and we
+        # register here. Skipped automatically when the regcode is absent.
         [ -f /etc/scc-regcode.env ] && . /etc/scc-regcode.env
         if [ -n "${SCC_REGCODE:-}" ]; then
           sudo SUSEConnect -r "$SCC_REGCODE" || true
