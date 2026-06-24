@@ -10,8 +10,7 @@ description: null
 version: 2.7.0
 supports: []
 depends: []
-inspec_version: |
-  "~>6.0"
+inspec_version: ">= 6.0"
 
 
 ### INPUTS ###
@@ -30,4 +29,4 @@ inspec_version: |
 # overrides instead.
 ###
 
-inputs:
+inputs: []
