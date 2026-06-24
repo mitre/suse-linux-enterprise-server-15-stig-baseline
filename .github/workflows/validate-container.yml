@@ -62,7 +62,7 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.1"
+          ruby-version: "3.3"
 
       - name: Disable ri and rdoc
         run: 'echo "gem: --no-ri --no-rdoc" >> ~/.gemrc'
@@ -71,10 +71,10 @@ jobs:
         run: bundle install
 
       - name: Installed Inspec
-        run: bundle exec inspec version
+        run: bundle exec cinc-auditor version
 
       - name: Vendor the Profile
-        run: bundle exec inspec vendor . --overwrite
+        run: bundle exec cinc-auditor vendor . --overwrite
 
       - name: Run kitchen test
         if: ${{ !contains(steps.commit.outputs.message, 'only-validate-profile') }}
