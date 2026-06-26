@@ -47,4 +47,33 @@ Add or update the following lines to "/etc/aide.conf" to protect the integrity o
   tag 'documentable'
   tag cci: ['CCI-001496']
   tag nist: ['AU-9 (3)']
+
+  audit_tools = %w[
+    /usr/sbin/auditctl
+    /usr/sbin/auditd
+    /usr/sbin/ausearch
+    /usr/sbin/aureport
+    /usr/sbin/autrace
+    /usr/sbin/audispd
+    /usr/sbin/augenrules
+  ]
+  # SLES uses AppArmor, so the SELinux attribute shown in the STIG's example rule
+  # is intentionally omitted; the remaining attributes assert strong integrity coverage.
+  required_attributes = %w[p i n u g s b acl xattrs sha512]
+
+  if input('file_integrity_tool') == 'aide'
+    audit_tools.each do |tool|
+      describe "AIDE rule protecting audit tool #{tool}" do
+        subject { aide_conf.where { selection_line == tool } }
+        it { should exist }
+        required_attributes.each do |attr|
+          its('rules.flatten') { should include attr }
+        end
+      end
+    end
+  else
+    describe "File integrity tool '#{input('file_integrity_tool')}'" do
+      skip "Manually verify #{input('file_integrity_tool')} is configured to protect the integrity of the audit tools."
+    end
+  end
 end
