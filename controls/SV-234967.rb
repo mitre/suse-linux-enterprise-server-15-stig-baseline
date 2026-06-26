@@ -9,20 +9,34 @@ Allowing devices and users to connect to or from the system without first authen
 transport = krb5
 
 If "transport" is not set to "krb5", or is commented out, this is a finding.'
-  desc 'fix', 'Configure the SUSE operating system audit event multiplexor to use Kerberos by editing the "/etc/audit/audisp-remote.conf" file.
+  desc 'fix', 'Configure the SUSE operating system audit event multiplexor to use Kerberos by editing the "/etc/audit/audisp-remote.conf" file. 
 
 Edit or add the following line to match the text below:
 
 transport = krb5'
   impact 0.3
-  tag check_id: 'C-38155r1009565_chk'
   tag severity: 'low'
+  tag gtitle: 'SRG-OS-000342-GPOS-00133'
+  tag satisfies: ['SRG-OS-000342-GPOS-00133', 'SRG-OS-000479-GPOS-00224']
   tag gid: 'V-234967'
   tag rid: 'SV-234967r1009567_rule'
   tag stig_id: 'SLES-15-030680'
-  tag gtitle: 'SRG-OS-000342-GPOS-00133'
   tag fix_id: 'F-38118r1009566_fix'
-  tag 'documentable'
   tag cci: ['CCI-001851']
   tag nist: ['AU-4 (1)']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  if input('alternative_logging_method') == ''
+    describe parse_config_file('/etc/audit/auditd.conf') do
+      its('overflow_action') { should match(/syslog$|single$|halt$/i) }
+    end
+  else
+    describe 'manual check' do
+      skip 'Manual check required. Ask the administrator to indicate how logging is done for this system.'
+    end
+  end
 end

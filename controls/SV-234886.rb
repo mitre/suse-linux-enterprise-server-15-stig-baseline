@@ -21,6 +21,12 @@ Edit "/etc/pam.d/common-password" and edit the line containing "pam_unix.so" to 
   tag gtitle: 'SRG-OS-000073-GPOS-00041'
   tag fix_id: 'F-38037r618928_fix'
   tag 'documentable'
-  tag cci: ['CCI-004062', 'CCI-000196']
-  tag nist: ['IA-5 (1) (d)', 'IA-5 (1) (c)']
+  tag cci: ['CCI-000196', 'CCI-004062']
+  tag nist: ['IA-5 (1) (c)', 'IA-5 (1) (d)']
+  tag 'host'
+  tag 'container'
+
+  describe login_defs do
+    its('ENCRYPT_METHOD') { should cmp 'SHA512' }
+  end
 end

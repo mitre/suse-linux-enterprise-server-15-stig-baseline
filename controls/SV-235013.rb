@@ -3,7 +3,7 @@ control 'SV-235013' do
   desc "The security risk of using X11 forwarding is that the client's X11 display server may be exposed to attack when the SSH client requests forwarding. A system administrator may have a stance in which they want to protect clients that may expose themselves to attack by unwittingly requesting X11 forwarding, which can warrant a ''no'' setting.
 X11 forwarding should be enabled with caution. Users with the ability to bypass file permissions on the remote host (for the user's X11 authorization database) can access the local X11 display through the forwarded connection. An attacker may then be able to perform activities such as keystroke monitoring if the ForwardX11Trusted option is also enabled.
 If X11 services are not required for the system's intended function, they should be disabled or restricted as appropriate to the system’s needs."
-  desc 'check', %q(Determine if X11Forwarding is disabled.
+  desc 'check', %q(Determine if X11Forwarding is disabled. 
 
 Verify the SUSE operating system SSH daemon remote X forwarded connections for interactive users are disabled.
 
@@ -20,14 +20,30 @@ Edit the "/etc/ssh/sshd_config" file to uncomment or add the line for the "X11Fo
 
 X11Forwarding no'
   impact 0.5
-  tag check_id: 'C-38201r951645_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-235013'
   tag rid: 'SV-235013r991589_rule'
   tag stig_id: 'SLES-15-040290'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38164r619309_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+  tag 'container-conditional'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system) || file('/etc/ssh/sshd_config').exist?
+  }
+
+  if input('x11_forwarding_required')
+    impact 0.0
+    describe 'N/A' do
+      skip "Profile inputs indicate that this parameter's setting is a documented operational requirement"
+    end
+  else
+
+    describe sshd_config do
+      its('X11Forwarding') { should cmp 'no' }
+    end
+  end
 end

@@ -17,14 +17,34 @@ Re-mount the filesystems.
 
 > sudo mount -o remount /home'
   impact 0.5
-  tag check_id: 'C-38186r619263_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234998'
   tag rid: 'SV-234998r991589_rule'
   tag stig_id: 'SLES-15-040140'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38149r619264_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  option = 'nosuid'
+  nfs_file_systems = etc_fstab.nfs_file_systems.params
+  failing_mounts = nfs_file_systems.reject { |mnt| mnt['mount_options'].include?(option) }
+
+  if nfs_file_systems.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'No NFS mounts are configured'
+    end
+  else
+    describe 'Any mounted Network File System (NFS)' do
+      it "should have '#{option}' set" do
+        expect(failing_mounts).to be_empty, "NFS without '#{option}' set:\n\t- #{failing_mounts.join("\n\t- ")}"
+      end
+    end
+  end
 end

@@ -12,14 +12,22 @@ If any ".shosts" files are found on the system, this is a finding.)
 
 > sudo rm /[path]/[to]/[file]/.shosts'
   impact 0.7
-  tag check_id: 'C-38172r619221_chk'
   tag severity: 'high'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234984'
   tag rid: 'SV-234984r991589_rule'
   tag stig_id: 'SLES-15-040020'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38135r619222_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+  tag 'container'
+
+  shosts_files = command('find / -xdev -xautofs -name .shosts').stdout.strip.split("\n")
+
+  describe 'The RHEL8 filesystem' do
+    it 'should not have any .shosts files present' do
+      expect(shosts_files).to be_empty, "Discovered .shosts files:\n\t- #{shosts_files.join("\n\t- ")}"
+    end
+  end
 end

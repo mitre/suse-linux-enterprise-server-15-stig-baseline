@@ -4,10 +4,8 @@ control 'SV-234810' do
 
 The session lock is implemented at the point where session activity can be determined.
 
-Regardless of where the session lock is determined and implemented, once invoked, the session lock must remain in place until the user reauthenticates. No other activity aside from reauthentication must unlock the system.
-
-'
-  desc 'check', 'Verify the SUSE operating system allows the user to lock the GUI.
+Regardless of where the session lock is determined and implemented, once invoked, the session lock must remain in place until the user reauthenticates. No other activity aside from reauthentication must unlock the system.'
+  desc 'check', 'Verify the SUSE operating system allows the user to lock the GUI. 
 
 Note: If the system does not have a graphical user interface installed, this requirement is Not Applicable.
 
@@ -24,15 +22,39 @@ Run the following command to configure the SUSE operating system to allow the us
 
 > sudo gsettings set org.gnome.desktop.lockdown disable-lock-screen false'
   impact 0.5
-  tag check_id: 'C-37998r618699_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000028-GPOS-00009'
+  tag satisfies: ['SRG-OS-000028-GPOS-00009', 'SRG-OS-000030-GPOS-00011']
   tag gid: 'V-234810'
   tag rid: 'SV-234810r1009609_rule'
   tag stig_id: 'SLES-15-010100'
-  tag gtitle: 'SRG-OS-000028-GPOS-00009'
   tag fix_id: 'F-37961r618700_fix'
-  tag satisfies: ['SRG-OS-000028-GPOS-00009', 'SRG-OS-000030-GPOS-00011']
-  tag 'documentable'
-  tag cci: ['CCI-000056', 'CCI-000057', 'CCI-000060', 'CCI-000058']
-  tag nist: ['AC-11 b', 'AC-11 a', 'AC-11 (1)', 'AC-11 a']
+  tag cci: ['CCI-000056', 'CCI-000058', 'CCI-000057', 'CCI-000060']
+  tag nist: ['AC-11 b', 'AC-11 a', 'AC-11 (1)']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  if !input('smart_card_enabled')
+    impact 0.0
+    describe "The system is not smartcard enabled thus this control is Not
+    Applicable" do
+      skip "The system is not using Smartcards / PIVs to fulfil the MFA
+      requirement; this control is Not Applicable."
+    end
+  elsif !package('gnome-desktop3').installed?
+    impact 0.0
+    describe 'The system does not have GNOME installed' do
+      skip "The system does not have GNOME installed, this requirement is Not
+      Applicable."
+    end
+  else
+    output = command('gsettings get org.gnome.settings-daemon.peripherals.smartcard removal-action').stdout.strip
+    describe 'Smart card removal should trigger a session lock until reauthentication' do
+      subject { output }
+      it { should cmp "'lock-screen'" }
+    end
+  end
 end

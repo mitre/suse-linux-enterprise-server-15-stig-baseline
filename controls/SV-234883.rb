@@ -15,14 +15,32 @@ If the command does not return anything, the returned line is commented out, or 
 
 Edit "/etc/pam.d/common-password" and edit the line containing "pam_cracklib.so" to contain the option "lcredit=-1" after the third column.'
   impact 0.5
-  tag check_id: 'C-38071r618918_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000070-GPOS-00038'
   tag gid: 'V-234883'
   tag rid: 'SV-234883r1009622_rule'
   tag stig_id: 'SLES-15-020140'
-  tag gtitle: 'SRG-OS-000070-GPOS-00038'
   tag fix_id: 'F-38034r618919_fix'
-  tag 'documentable'
-  tag cci: ['CCI-004066', 'CCI-000193']
-  tag nist: ['IA-5 (1) (h)', 'IA-5 (1) (a)']
+  tag cci: ['CCI-000193', 'CCI-004066']
+  tag nist: ['IA-5 (1) (a)', 'IA-5 (1) (h)']
+  tag 'host'
+  tag 'container'
+
+  describe 'pwquality.conf settings' do
+    let(:config) { parse_config_file('/etc/security/pwquality.conf', multiple_values: true) }
+    let(:setting) { 'lcredit' }
+    let(:value) { Array(config.params[setting]) }
+
+    it 'has `lcredit` set' do
+      expect(value).not_to be_empty, 'lcredit is not set in pwquality.conf'
+    end
+
+    it 'only sets `lcredit` once' do
+      expect(value.length).to eq(1), 'lcredit is commented or set more than once in pwquality.conf'
+    end
+
+    it 'does not set `lcredit` to a positive value' do
+      expect(value.first.to_i).to be < 0, 'lcredit is not set to a negative value in pwquality.conf'
+    end
+  end
 end

@@ -12,14 +12,22 @@ If any output is returned, this is a finding.)
 
 > sudo find /lib /lib64 /usr/lib /usr/lib64 -type f -name '*.so*' ! -user root -exec chown root {} +)
   impact 0.5
-  tag check_id: 'C-38024r1102117_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000259-GPOS-00100'
   tag gid: 'V-234836'
   tag rid: 'SV-234836r1106561_rule'
   tag stig_id: 'SLES-15-010353'
-  tag gtitle: 'SRG-OS-000259-GPOS-00100'
   tag fix_id: 'F-37987r1106560_fix'
-  tag 'documentable'
   tag cci: ['CCI-001499']
   tag nist: ['CM-5 (6)']
+  tag 'host'
+  tag 'container'
+
+  failing_files = command("find -L #{input('system_libraries').join(' ')} -type f -name '*.so*' -perm /0022 -exec ls -d {} \\;").stdout.split("\n")
+
+  describe 'System libraries' do
+    it 'should be owned by root' do
+      expect(failing_files).to be_empty, "Files not owned by root:\n\t- #{failing_files.join("\n\t- ")}"
+    end
+  end
 end

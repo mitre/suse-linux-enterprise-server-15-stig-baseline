@@ -18,14 +18,27 @@ Uncomment the "network_failure_action" option in "/etc/audit/audisp-remote.conf"
 
 network_failure_action = syslog'
   impact 0.5
-  tag check_id: 'C-38166r1009571_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000479-GPOS-00224'
   tag gid: 'V-234978'
   tag rid: 'SV-234978r1009573_rule'
   tag stig_id: 'SLES-15-030790'
-  tag gtitle: 'SRG-OS-000479-GPOS-00224'
   tag fix_id: 'F-38129r1009572_fix'
-  tag 'documentable'
-  tag cci: ['CCI-001851']
-  tag nist: ['AU-4 (1)']
+  tag cci: ['CCI-000366', 'CCI-000154', 'CCI-001851']
+  tag nist: ['CM-6 b', 'AU-6 (4)', 'AU-4 (1)']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  if input('alternative_logging_method') == ''
+    describe package('rsyslog') do
+      it { should be_installed }
+    end
+  else
+    describe 'manual check' do
+      skip 'Manual check required. Ask the administrator to indicate how logging is done for this system.'
+    end
+  end
 end

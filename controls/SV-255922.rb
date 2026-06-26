@@ -9,7 +9,7 @@ Check that the AIDE package is installed with the following command:
      $ sudo zypper if aide | grep "Installed"
      Installed: Yes
 
-If AIDE is not installed, ask the System Administrator how file integrity checks are performed on the system.
+If AIDE is not installed, ask the System Administrator how file integrity checks are performed on the system. 
 
 If there is no application installed to perform integrity checks, this is a finding.
 
@@ -48,6 +48,14 @@ Done.'
   tag gtitle: 'SRG-OS-000363-GPOS-00150'
   tag fix_id: 'F-59542r880966_fix'
   tag 'documentable'
-  tag cci: ['CCI-002696']
-  tag nist: ['SI-6 a']
+  tag cci: ['CCI-001744', 'CCI-002696']
+  tag nist: ['CM-3 (5)', 'SI-6 a']
+  tag 'host'
+  tag 'container'
+
+  mail_package = input('mail_package')
+
+  describe package(mail_package) do
+    it { should be_installed }
+  end
 end

@@ -19,11 +19,11 @@ Verify the alias for root forwards to a monitored e-mail account:
 root: person@server.mil
 
 If the alias for root does not forward to a monitored e-mail account, or the output is commented out, this is a finding.'
-  desc 'fix', %q(Configure the auditd service to notify the administrators in the event of a SUSE operating system audit processing failure.
+  desc 'fix', %q(Configure the auditd service to notify the administrators in the event of a SUSE operating system audit processing failure. 
 
 Configure an alias value for the postmaster with the following command:
 
-> sudo sh -c 'echo "postmaster: root" >> /etc/aliases'
+> sudo sh -c 'echo "postmaster: root" >> /etc/aliases' 
 
 Configure an alias for root that forwards to a monitored email address with the following command:
 
@@ -43,4 +43,12 @@ The following command must be run to implement changes to the /etc/aliases file:
   tag 'documentable'
   tag cci: ['CCI-000139']
   tag nist: ['AU-5 a']
+  tag 'host'
+  tag 'container'
+
+  options = { assignment_regex: /^(\S+):\s*(\S+)/ }
+
+  describe parse_config_file('/etc/aliases', options) do
+    its('postmaster') { should cmp 'root' }
+  end
 end

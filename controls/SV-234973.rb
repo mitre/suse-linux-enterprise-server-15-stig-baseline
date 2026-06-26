@@ -16,7 +16,7 @@ If both the "b32" and "b64" audit rules are not defined for the "unlink", "unlin
 
 Note:
 The "-k" allows for specifying an arbitrary identifier. The string following "-k" does not need to match the example output above.)
-  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "unlink", "unlinkat", "rename", "renameat", and "rmdir" system calls.
+  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "unlink", "unlinkat", "rename", "renameat", and "rmdir" system calls. 
 
 Add or update the following rules to "/etc/audit/rules.d/audit.rules":
 

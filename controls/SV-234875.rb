@@ -28,4 +28,16 @@ Run the following command to disable the interactive shell for a specific non-in
   tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+  tag 'container'
+
+  if input('quagga_required')
+    describe package('quagga') do
+      it { should be_installed }
+    end
+  else
+    describe package('quagga') do
+      it { should_not be_installed }
+    end
+  end
 end

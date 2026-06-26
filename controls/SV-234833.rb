@@ -28,14 +28,19 @@ Set the correct permissions with the following command:
 
 > sudo chkstat --set --system'
   impact 0.5
-  tag check_id: 'C-38021r618768_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000206-GPOS-00084'
   tag gid: 'V-234833'
   tag rid: 'SV-234833r958566_rule'
   tag stig_id: 'SLES-15-010350'
-  tag gtitle: 'SRG-OS-000206-GPOS-00084'
   tag fix_id: 'F-37984r618769_fix'
-  tag 'documentable'
   tag cci: ['CCI-001314']
   tag nist: ['SI-11 b']
+  tag 'host'
+  tag 'container'
+
+  describe directory('/var/log') do
+    it { should exist }
+    it { should be_owned_by 'root' }
+  end
 end

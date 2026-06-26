@@ -1,13 +1,13 @@
 control 'SV-234820' do
   title 'SUSE operating systems with Unified Extensible Firmware Interface (UEFI) implemented must require authentication upon booting into single-user mode and maintenance.'
   desc 'If the system allows a user to boot into single-user or maintenance mode without authentication, any user that invokes single-user or maintenance mode is granted privileged access to all system information.'
-  desc 'check', 'Verify that the SUSE operating system has set an encrypted root password.
+  desc 'check', 'Verify that the SUSE operating system has set an encrypted root password. 
 
 Note: If the system does not use UEFI, this requirement is Not Applicable.
 
 Check that the encrypted password is set for root with the following command:
 
-> sudo cat /boot/efi/EFI/sles/grub.cfg | grep -i password
+> sudo cat /boot/efi/EFI/sles/grub.cfg | grep -i password 
 
 password_pbkdf2 root grub.pbkdf2.sha512.10000.VeryLongString
 
@@ -43,4 +43,10 @@ Generate an updated "grub.conf" file with the new password using the following c
   tag 'documentable'
   tag cci: ['CCI-000213']
   tag nist: ['AC-3']
+  tag 'host'
+  tag 'container'
+
+  describe ini('/usr/lib/systemd/system/rescue.service') do
+    its('Service.ExecStart') { should match %r{^-/usr/lib/systemd/systemd-sulogin-shell rescue$} }
+  end
 end

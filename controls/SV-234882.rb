@@ -15,14 +15,32 @@ If the command does not return anything, the returned line is commented out, or 
 
 Edit "/etc/pam.d/common-password" and edit the line containing "pam_cracklib.so" to contain the option "ucredit=-1" after the third column.'
   impact 0.5
-  tag check_id: 'C-38070r618915_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000069-GPOS-00037'
   tag gid: 'V-234882'
   tag rid: 'SV-234882r1009621_rule'
   tag stig_id: 'SLES-15-020130'
-  tag gtitle: 'SRG-OS-000069-GPOS-00037'
   tag fix_id: 'F-38033r618916_fix'
-  tag 'documentable'
-  tag cci: ['CCI-004066', 'CCI-000192']
-  tag nist: ['IA-5 (1) (h)', 'IA-5 (1) (a)']
+  tag cci: ['CCI-000192', 'CCI-004066']
+  tag nist: ['IA-5 (1) (a)', 'IA-5 (1) (h)']
+  tag 'host'
+  tag 'container'
+
+  describe 'pwquality.conf:' do
+    let(:config) { parse_config_file('/etc/security/pwquality.conf', multiple_values: true) }
+    let(:setting) { 'ucredit' }
+    let(:value) { Array(config.params[setting]) }
+
+    it 'has `ucredit` set' do
+      expect(value).not_to be_empty, 'ucredit is not set in pwquality.conf'
+    end
+
+    it 'only sets `ucredit` once' do
+      expect(value.length).to eq(1), 'ucredit is commented or set more than once in pwquality.conf'
+    end
+
+    it 'does not set `ucredit` to a positive value' do
+      expect(value.first.to_i).to cmp < 0, 'ucredit is not set to a negative value in pwquality.conf'
+    end
+  end
 end

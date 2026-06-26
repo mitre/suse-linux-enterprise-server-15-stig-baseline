@@ -27,4 +27,16 @@ If any world-writable directories are not owned by root, sys, bin, or an applica
   tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('Control not applicable within a container', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  grubfile = input('grub_conf_path')
+
+  describe file(grubfile) do
+    it { should exist }
+    its('group') { should cmp 'root' }
+  end
 end

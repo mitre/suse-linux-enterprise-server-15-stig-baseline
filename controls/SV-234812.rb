@@ -1,6 +1,6 @@
 control 'SV-234812' do
   title 'The SUSE operating system must initiate a session lock after a 15-minute period of inactivity for the graphical user interface (GUI).'
-  desc "A session time-out lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system but does not log out because of the temporary nature of the absence.
+  desc "A session time-out lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system but does not log out because of the temporary nature of the absence. 
 
 Rather than relying on the users to manually lock their SUSE operating system session prior to vacating the vicinity, the SUSE operating system needs to be able to identify when a user's session has idled and take action to initiate the session lock.
 
@@ -20,14 +20,31 @@ Note: If the system does not have a graphical user interface installed, this req
 
 > sudo gsettings set org.gnome.desktop.session idle-delay 900'
   impact 0.5
-  tag check_id: 'C-38000r618705_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000029-GPOS-00010'
+  tag satisfies: ['SRG-OS-000029-GPOS-00010', 'SRG-OS-000031-GPOS-00012', 'SRG-OS-000480-GPOS-00227']
   tag gid: 'V-234812'
   tag rid: 'SV-234812r958402_rule'
   tag stig_id: 'SLES-15-010120'
-  tag gtitle: 'SRG-OS-000029-GPOS-00010'
   tag fix_id: 'F-37963r618706_fix'
-  tag 'documentable'
   tag cci: ['CCI-000057']
   tag nist: ['AC-11 a']
+  tag 'host'
+
+  only_if('This requirement is Not Applicable in the container', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  no_gui = command('ls /usr/share/xsessions/*').stderr.match?(/No such file or directory/)
+
+  if no_gui
+    impact 0.0
+    describe 'The system does not have a GUI Desktop is installed; this control is Not Applicable' do
+      skip 'A GUI desktop is not installed; this control is Not Applicable.'
+    end
+  else
+    describe command('gsettings get org.gnome.desktop.screensaver lock-delay') do
+      its('stdout.strip') { should match(/uint32\s[0-5]/) }
+    end
+  end
 end

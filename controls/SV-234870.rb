@@ -24,14 +24,22 @@ Edit the appropriate "/etc/ssh/sshd_config" file, add or uncomment the line for 
 
 PermitRootLogin no'
   impact 0.5
-  tag check_id: 'C-38058r951637_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000109-GPOS-00056'
   tag gid: 'V-234870'
   tag rid: 'SV-234870r1009618_rule'
   tag stig_id: 'SLES-15-020040'
-  tag gtitle: 'SRG-OS-000109-GPOS-00056'
   tag fix_id: 'F-38021r618880_fix'
-  tag 'documentable'
-  tag cci: ['CCI-004045', 'CCI-000770']
-  tag nist: ['IA-2 (5)', 'IA-2 (5)']
+  tag cci: ['CCI-000770', 'CCI-000366', 'CCI-004045']
+  tag nist: ['IA-2 (5)', 'CM-6 b']
+  tag 'host'
+  tag 'container-conditional'
+
+  only_if('This control is Not Applicable to containers without SSH installed', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system) || directory('/etc/ssh').exist?
+  }
+
+  describe sshd_config do
+    its('PermitRootLogin') { should cmp input('permit_root_login') }
+  end
 end

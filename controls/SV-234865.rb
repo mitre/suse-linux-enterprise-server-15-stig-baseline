@@ -14,27 +14,29 @@ For networked systems, check that rsyslog is sending log messages to a remote se
 *.*;mail.none;news.none @192.168.1.101:514
 
 If any active message labels in the file do not have a line to send log messages to a remote server, this is a finding.'
-  desc 'fix', 'Configure the SUSE operating system to off-load rsyslog messages for networked systems in real time.
-
-For stand-alone systems establish a procedure to off-load log messages at least once a week.
-
-For networked systems add a "@[Log_Server_IP_Address]" option to every active message label in "/etc/rsyslog.conf" or in a file in "/etc/rsyslog.d/ that does not have one. Some examples are listed below:
-
-*.*;mail.none;news.none -/var/log/messages
-*.*;mail.none;news.none @192.168.1.101:514
-
-An additional option is to capture all of the log messages and send them to a remote log host:
-
-*.* @@loghost:514'
   impact 0.5
-  tag check_id: 'C-38053r1082187_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000479-GPOS-00224'
+  tag satisfies: ['SRG-OS-000342-GPOS-00133', 'SRG-OS-000479-GPOS-00224', 'SRG-OS-000480-GPOS-00227']
   tag gid: 'V-234865'
   tag rid: 'SV-234865r1082187_rule'
   tag stig_id: 'SLES-15-010580'
-  tag gtitle: 'SRG-OS-000479-GPOS-00224'
   tag fix_id: 'F-38016r1069396_fix'
-  tag 'documentable'
-  tag cci: ['CCI-001851']
-  tag nist: ['AU-4 (1)']
+  tag cci: ['CCI-001851', 'CCI-000366']
+  tag nist: ['AU-4 (1)', 'CM-6 b']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  if input('alternative_logging_method') == ''
+    describe command("grep -i 'type=\"omfwd\"' #{input('logging_conf_files').join(' ')}") do
+      its('stdout') { should match(/^.*:\s*#\s*action\(\s*type\s*=\s*"omfwd"/i) }
+    end
+  else
+    describe 'manual check' do
+      skip 'Manual check required. Ask the administrator to indicate how logging is done for this system.'
+    end
+  end
 end

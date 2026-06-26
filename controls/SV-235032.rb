@@ -28,4 +28,14 @@ PermitUserEnvironment no'
   tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+  tag 'container-conditional'
+
+  only_if('This control is Not Applicable to containers without SSH installed', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system) || directory('/etc/ssh').exist?
+  }
+
+  describe sshd_config do
+    its('HostBasedAuthentication') { should cmp 'no' }
+  end
 end

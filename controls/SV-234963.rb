@@ -1,8 +1,6 @@
 control 'SV-234963' do
   title 'The SUSE operating system must generate audit records for all uses of the privileged functions.'
-  desc 'Misuse of privileged functions, either intentionally or unintentionally by authorized users, or by unauthorized external entities that have compromised information system accounts, is a serious and ongoing concern and can have significant adverse impacts on organizations. Auditing the use of privileged functions is one way to detect such misuse and identify the risk from insider threats and the advanced persistent threat.
-
-'
+  desc 'Misuse of privileged functions, either intentionally or unintentionally by authorized users, or by unauthorized external entities that have compromised information system accounts, is a serious and ongoing concern and can have significant adverse impacts on organizations. Auditing the use of privileged functions is one way to detect such misuse and identify the risk from insider threats and the advanced persistent threat.'
   desc 'check', %q(Verify the SUSE operating system generates an audit record for any privileged use of the "execve" system call.
 
 > sudo auditctl -l | grep -w 'execve'
@@ -41,8 +39,27 @@ or issue the following command:
   tag stig_id: 'SLES-15-030640'
   tag gtitle: 'SRG-OS-000327-GPOS-00127'
   tag fix_id: 'F-38114r986509_fix'
-  tag satisfies: ['SRG-OS-000327-GPOS-00127', 'SRG-OS-000337-GPOS-00129', 'SRG-OS-000348-GPOS-00136', 'SRG-OS-000349-GPOS-00137', 'SRG-OS-000350-GPOS-00138', 'SRG-OS-000351-GPOS-00139', 'SRG-OS-000352-GPOS-00140', 'SRG-OS-000353-GPOS-00141', 'SRG-OS-000354-GPOS-00142', 'SRG-OS-000358-GPOS-00145', 'SRG-OS-000359-GPOS-00146', 'SRG-OS-000365-GPOS-00152']
   tag 'documentable'
-  tag cci: ['CCI-003938', 'CCI-001875', 'CCI-001877', 'CCI-001878', 'CCI-001879', 'CCI-001880', 'CCI-001881', 'CCI-001882', 'CCI-001889', 'CCI-001914', 'CCI-002234', 'CCI-001814']
-  tag nist: ['CM-5 (1) (b)', 'AU-7 a', 'AU-7 a', 'AU-7 a', 'AU-7 a', 'AU-7 a', 'AU-7 b', 'AU-7 b', 'AU-8 b', 'AU-12 (3)', 'AC-6 (9)', 'CM-5 (1)']
+  tag cci: ['CCI-000172', 'CCI-003938', 'CCI-001875', 'CCI-001877', 'CCI-001878', 'CCI-001879', 'CCI-001880', 'CCI-001881', 'CCI-001882', 'CCI-001889', 'CCI-001914', 'CCI-002234', 'CCI-001814']
+  tag nist: ['AU-12 c', 'CM-5 (1) (b)', 'AU-7 a', 'AU-7 b', 'AU-8 b', 'AU-12 (3)', 'AC-6 (9)', 'CM-5 (1)']
+  tag 'host'
+
+  audit_command = '/usr/sbin/init'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe 'Command' do
+    it "#{audit_command} is audited properly" do
+      audit_rule = auditd.file(audit_command)
+      expect(audit_rule).to exist
+      expect(audit_rule.action.uniq).to cmp 'always'
+      expect(audit_rule.list.uniq).to cmp 'exit'
+      expect(audit_rule.fields.flatten).to include('perm=x', 'auid>=1000', 'auid!=-1')
+      expect(audit_rule.key.uniq).to include(input('audit_rule_keynames').merge(input('audit_rule_keynames_overrides'))[audit_command])
+      auditctl_output = command("sudo auditctl -l | grep #{audit_command}").stdout.strip
+      expect(auditctl_output).to match(/-S\s+all\b/)
+    end
+  end
 end

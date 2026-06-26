@@ -10,18 +10,23 @@ Check the system for duplicate UID "0" assignments with the following command:
 root
 
 If any accounts other than root have a UID of "0", this is a finding.)
-  desc 'fix', 'Change the UID of any account on the SUSE operating system, other than the root account, that has a UID of "0".
+  desc 'fix', 'Change the UID of any account on the SUSE operating system, other than the root account, that has a UID of "0". 
 
 If the account is associated with system commands or applications, the UID should be changed to one greater than "0" but less than "1000". Otherwise, assign a UID of greater than "1000" that has not already been assigned.'
   impact 0.7
-  tag check_id: 'C-38064r618897_chk'
   tag severity: 'high'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234876'
   tag rid: 'SV-234876r991589_rule'
   tag stig_id: 'SLES-15-020100'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38027r618898_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+  tag 'container'
+
+  describe passwd.uids(0) do
+    its('users') { should cmp 'root' }
+    its('entries.length') { should eq 1 }
+  end
 end

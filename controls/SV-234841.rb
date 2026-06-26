@@ -21,14 +21,24 @@ If any directories are found to be group-writable or world-writable, this is a f
 
 > sudo find -L /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -perm /022 -type d -exec chmod -R 755 '{}' \\;"
   impact 0.5
-  tag check_id: 'C-38029r618792_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000259-GPOS-00100'
   tag gid: 'V-234841'
   tag rid: 'SV-234841r991560_rule'
   tag stig_id: 'SLES-15-010358'
-  tag gtitle: 'SRG-OS-000259-GPOS-00100'
   tag fix_id: 'F-37992r618793_fix'
-  tag 'documentable'
   tag cci: ['CCI-001499']
   tag nist: ['CM-5 (6)']
+  tag 'host'
+  tag 'container'
+
+  required_system_account_caveats = input('required_system_accounts').map { |acct| "-group #{acct}" }.join(' ')
+
+  failing_files = command("find -L #{input('system_command_dirs').join(' ')} ! #{required_system_account_caveats} -exec ls -d {} \\;").stdout.split("\n")
+
+  describe 'System commands' do
+    it 'should be group-owned by root' do
+      expect(failing_files).to be_empty, "Files not group-owned by root:\n\t- #{failing_files.join("\n\t- ")}"
+    end
+  end
 end

@@ -28,14 +28,34 @@ For the changes to take effect, the SSH daemon must be restarted.
 
 > sudo systemctl restart sshd.service'
   impact 0.5
-  tag check_id: 'C-38018r1106555_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000163-GPOS-00072'
+  tag satisfies: ['SRG-OS-000163-GPOS-00072', 'SRG-OS-000126-GPOS-00066', 'SRG-OS-000279-GPOS-00109']
   tag gid: 'V-234830'
   tag rid: 'SV-234830r1106556_rule'
   tag stig_id: 'SLES-15-010320'
-  tag gtitle: 'SRG-OS-000163-GPOS-00072'
   tag fix_id: 'F-37981r1069399_fix'
-  tag 'documentable'
   tag cci: ['CCI-001133', 'CCI-002361']
   tag nist: ['SC-10', 'AC-12']
+  tag 'host'
+  tag 'container-conditional'
+
+  only_if('SSH is not installed on the system this requirement is Not Applicable', impact: 0.0) {
+    service('sshd').enabled? || package('openssh-server').installed?
+  }
+
+  client_alive_count = input('sshd_client_alive_count_max')
+
+  if %w[docker podman kubepods lxc].include?(virtualization.system) && !file('/etc/ssh/sshd_config').exist?
+    impact 0.0
+    describe 'skip' do
+      skip 'SSH configuration does not apply inside containers. This control is Not Applicable.'
+    end
+  else
+    describe 'SSH ClientAliveCountMax configuration' do
+      it "should be set to #{client_alive_count}" do
+        expect(sshd_config.ClientAliveCountMax).to(cmp(client_alive_count), "SSH ClientAliveCountMax is commented out or not set to the expected value (#{client_alive_count})")
+      end
+    end
+  end
 end

@@ -18,14 +18,41 @@ Add the following line to the file "/etc/security/limits.conf":
 
 * hard maxlogins 10'
   impact 0.3
-  tag check_id: 'C-38056r618873_chk'
   tag severity: 'low'
+  tag gtitle: 'SRG-OS-000027-GPOS-00008'
   tag gid: 'V-234868'
   tag rid: 'SV-234868r958398_rule'
   tag stig_id: 'SLES-15-020020'
-  tag gtitle: 'SRG-OS-000027-GPOS-00008'
   tag fix_id: 'F-38019r618874_fix'
-  tag 'documentable'
   tag cci: ['CCI-000054']
   tag nist: ['AC-10']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  setting = 'maxlogins'
+  expected_value = input('concurrent_sessions_permitted')
+
+  limits_files = command('ls /etc/security/limits.d/*.conf').stdout.strip.split
+  limits_files.append('/etc/security/limits.conf')
+
+  # make sure that at least one limits.conf file has the correct setting
+  globally_set = limits_files.any? { |lf| !limits_conf(lf).read_params['*'].nil? && limits_conf(lf).read_params['*'].include?(['hard', setting.to_s, expected_value.to_s]) }
+
+  # make sure that no limits.conf file has a value that contradicts the global set
+  failing_files = limits_files.select { |lf|
+    limits_conf(lf).read_params.values.flatten(1).any? { |l|
+      l[1].eql?(setting) && l[2].to_i > expected_value
+    }
+  }
+  describe 'Limits files' do
+    it "should limit concurrent sessions to #{expected_value} by default" do
+      expect(globally_set).to eq(true), "No global ('*') setting for concurrent sessions found"
+    end
+    it 'should not have any conflicting settings' do
+      expect(failing_files).to be_empty, "Files with incorrect '#{setting}' settings:\n\t- #{failing_files.join("\n\t- ")}"
+    end
+  end
 end

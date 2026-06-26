@@ -1,6 +1,6 @@
 control 'SV-234864' do
   title 'The SUSE operating system must notify the System Administrator (SA) when Advanced Intrusion Detection Environment (AIDE) discovers anomalies in the operation of any security functions.'
-  desc 'If anomalies are not acted on, security functions may fail to secure the system.
+  desc 'If anomalies are not acted on, security functions may fail to secure the system. 
 
 Security function is defined as the hardware, software, and/or firmware of the information system responsible for enforcing the system security policy and supporting the isolation of code and data on which the protection is based. Security functionality includes, but is not limited to, establishing system accounts, configuring access authorizations (i.e., permissions, privileges), setting events to be audited, and setting intrusion detection parameters.
 
@@ -11,7 +11,7 @@ This capability must take into account operational requirements for availability
 
 Verify the aide cron job sends an email when executed with the following command:
 
-     > grep -i "aide" /etc/cron.*/aide
+     > grep -i "aide" /etc/cron.*/aide 
      0 0 * * * /usr/bin/aide --check | /bin/mail -s "$HOSTNAME - Daily AIDE integrity check run" root@example_server_name.mil
 
 If the "aide" file does not exist under the "/etc/cron" directory structure or the cron job is not configured to execute a binary to send an email (such as "/bin/mail"), this is a finding.'
@@ -30,7 +30,35 @@ Note: Per requirement SLES-15-010418, the "mailx" package must be installed on t
   tag stig_id: 'SLES-15-010570'
   tag gtitle: 'SRG-OS-000447-GPOS-00201'
   tag fix_id: 'F-38015r1184461_fix'
+  tag satisfies: ['SRG-OS-000363-GPOS-00150', 'SRG-OS-000446-GPOS-00200', 'SRG-OS-000447-GPOS-00201']
   tag 'documentable'
-  tag cci: ['CCI-002702']
-  tag nist: ['SI-6 d']
+  tag cci: ['CCI-001744', 'CCI-002699', 'CCI-002702']
+  tag nist: ['CM-3 (5)', 'SI-6 b', 'SI-6 d']
+  tag 'host'
+
+  file_integrity_tool = input('file_integrity_tool')
+
+  only_if('Control not applicable within a container', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe package(file_integrity_tool) do
+    it { should be_installed }
+  end
+  describe.one do
+    describe file("/etc/cron.daily/#{file_integrity_tool}") do
+      its('content') { should match %r{/bin/mail} }
+    end
+    describe file("/etc/cron.weekly/#{file_integrity_tool}") do
+      its('content') { should match %r{/bin/mail} }
+    end
+    describe crontab('root').where { command =~ /#{file_integrity_tool}/ } do
+      its('commands.flatten') { should include(match %r{/bin/mail}) }
+    end
+    if file("/etc/cron.d/#{file_integrity_tool}").exist?
+      describe crontab(path: "/etc/cron.d/#{file_integrity_tool}") do
+        its('commands') { should include(match %r{/bin/mail}) }
+      end
+    end
+  end
 end

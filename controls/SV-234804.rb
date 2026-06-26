@@ -4,9 +4,7 @@ control 'SV-234804' do
 
 SUSE operating systems are capable of providing a wide variety of functions and services. Some of the functions and services, provided by default, may not be necessary to support essential organizational operations (e.g., key missions and functions).
 
-Examples of nonessential capabilities include but are not limited to games, software packages, tools, and demonstration software not related to requirements or providing a wide array of functionality not required for every mission but which cannot be disabled.
-
-'
+Examples of nonessential capabilities include but are not limited to games, software packages, tools, and demonstration software not related to requirements or providing a wide array of functionality not required for every mission but which cannot be disabled.'
   desc 'check', 'Verify the vsftpd package is not installed on the SUSE operating system.
 
 Check that the vsftpd package is not installed on the SUSE operating system by running the following command:
@@ -18,15 +16,24 @@ If "vsftpd" is installed and is not documented with the Information System Secur
 
 > sudo zypper remove vsftpd'
   impact 0.7
-  tag check_id: 'C-37992r618681_chk'
   tag severity: 'high'
+  tag gtitle: 'SRG-OS-000074-GPOS-00042'
   tag gid: 'V-234804'
   tag rid: 'SV-234804r987796_rule'
   tag stig_id: 'SLES-15-010030'
-  tag gtitle: 'SRG-OS-000074-GPOS-00042'
   tag fix_id: 'F-37955r618682_fix'
-  tag satisfies: ['SRG-OS-000074-GPOS-00042', 'SRG-OS-000095-GPOS-00049']
-  tag 'documentable'
-  tag cci: ['CCI-000197', 'CCI-000381']
-  tag nist: ['IA-5 (1) (c)', 'CM-7 a']
+  tag cci: ['CCI-000366', 'CCI-000197', 'CCI-000381']
+  tag nist: ['CM-6 b', 'IA-5 (1) (c)', 'CM-7 a']
+  tag 'host'
+  tag 'container'
+
+  if input('ftp_required')
+    describe package('vsftpd') do
+      it { should be_installed }
+    end
+  else
+    describe package('vsftpd') do
+      it { should_not be_installed }
+    end
+  end
 end

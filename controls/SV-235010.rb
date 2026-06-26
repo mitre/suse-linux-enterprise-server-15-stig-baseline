@@ -16,14 +16,22 @@ Uncomment the "StrictModes" keyword in "/etc/ssh/sshd_config" and set the value 
 
 StrictModes yes'
   impact 0.5
-  tag check_id: 'C-38198r951643_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-235010'
   tag rid: 'SV-235010r991589_rule'
   tag stig_id: 'SLES-15-040260'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38161r619300_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+  tag 'container-conditional'
+
+  only_if('This control is Not Applicable to containers without SSH installed', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system) || directory('/etc/ssh').exist?
+  }
+
+  describe sshd_config do
+    its('StrictModes') { should cmp 'yes' }
+  end
 end

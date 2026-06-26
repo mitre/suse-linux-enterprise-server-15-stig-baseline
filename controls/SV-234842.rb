@@ -21,14 +21,22 @@ If any system commands are returned, this is a finding.)
 
 > sudo find -L /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin ! -user root -type f -exec chown root '{}' \\;"
   impact 0.5
-  tag check_id: 'C-38030r618795_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000259-GPOS-00100'
   tag gid: 'V-234842'
   tag rid: 'SV-234842r991560_rule'
   tag stig_id: 'SLES-15-010359'
-  tag gtitle: 'SRG-OS-000259-GPOS-00100'
   tag fix_id: 'F-37993r618796_fix'
-  tag 'documentable'
   tag cci: ['CCI-001499']
   tag nist: ['CM-5 (6)']
+  tag 'host'
+  tag 'container'
+
+  failing_files = command("find -L #{input('system_command_dirs').join(' ')} ! -user root -exec ls -d {} \\;").stdout.split("\n")
+
+  describe 'System commands' do
+    it 'should be owned by root' do
+      expect(failing_files).to be_empty, "Files not owned by root:\n\t- #{failing_files.join("\n\t- ")}"
+    end
+  end
 end

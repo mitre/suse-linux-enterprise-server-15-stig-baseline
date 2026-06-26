@@ -24,14 +24,39 @@ If the SUSE operating system has not been patched within the site or PMO frequen
 
 > sudo zypper patch'
   impact 0.5
-  tag check_id: 'C-37990r618675_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234802'
   tag rid: 'SV-234802r991589_rule'
   tag stig_id: 'SLES-15-010010'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-37953r618676_fix'
-  tag 'documentable'
-  tag cci: ['CCI-001227']
-  tag nist: ['SI-2 a']
+  tag cci: ['CCI-000366', 'CCI-001227']
+  tag nist: ['CM-6 b', 'SI-2 a']
+  tag 'host'
+  tag 'container'
+
+  only_if("This control takes a long time to execute so it has been disabled through 'slow_controls'") {
+    !input('disable_slow_controls')
+  }
+
+  if input('disconnected_system')
+    describe 'The system is set to a `disconnected` state and you must validate the state of the system packages manually' do
+      skip 'The system is set to a `disconnected` state and you must validate the state of the system packages manually'
+    end
+  else
+    updates = linux_update.updates
+    package_names = updates.map { |h| h['name'] }
+
+    describe.one do
+      describe 'List of out-of-date packages' do
+        subject { package_names }
+        it { should be_empty }
+      end
+      updates.each do |update|
+        describe package(update['name']) do
+          its('version') { should eq update['version'] }
+        end
+      end
+    end
+  end
 end

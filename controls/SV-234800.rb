@@ -31,14 +31,50 @@ If the release is not supported by the vendor, this is a finding.'
 
 If the system requires Long-Term Service Pack Support (LTSS), obtain the correct LTSS subscription for the system.'
   impact 0.7
-  tag check_id: 'C-37988r618669_chk'
   tag severity: 'high'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234800'
   tag rid: 'SV-234800r1155796_rule'
   tag stig_id: 'SLES-15-010000'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-37951r618670_fix'
-  tag 'documentable'
-  tag cci: ['CCI-001230']
-  tag nist: ['SI-2 d']
+  tag cci: ['CCI-000366', 'CCI-001230']
+  tag nist: ['CM-6 b', 'SI-2 d']
+  tag 'host'
+  tag 'container'
+
+  release = os.release
+
+  # Note that versions 9.0 and 9.2 of RHEL9 are within the EUS window at
+  # time of writing.
+
+  # 9.1 is not a EUS-supported release and is no longer officially supported
+  # by Red Hat. The date given for the expiration for 9.1 is based on the
+  # RHEL9 Planning Guide diagram found on Red Hat's Life Cycle page:
+  # https://access.redhat.com/support/policy/updates/errata/#Life_Cycle_Dates
+
+  EOMS_DATE = {
+    /^9\.0/ => 'May 31, 2024',
+    /^9\.1/ => 'April 1, 2023',
+    /^9\.2/ => 'May 31, 2025',
+    /^9\.3/ => 'April 30, 2024',
+    /^9\.4/ => 'May 31, 2026',
+    /^9\.5/ => 'April 30, 2025',
+    /^9\.6/ => 'May 31, 2027',
+    /^9\.7/ => 'April 30, 2026',
+    /^9\.8/ => 'May 31, 2028',
+    /^9\.9/ => 'April 30, 2027',
+    /^9\.10/ => 'May 31, 2032'
+  }.find { |k, _v| k.match(release) }&.last
+
+  describe "The release \"#{release}\"" do
+    if EOMS_DATE.nil?
+      it 'is a supported release' do
+        expect(EOMS_DATE).not_to be_nil, "Release '#{release}' has no specified support window"
+      end
+    else
+      it 'is still within the support window' do
+        expect(Date.today).to be <= Date.parse(EOMS_DATE)
+      end
+    end
+  end
 end

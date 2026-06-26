@@ -18,14 +18,26 @@ PASS_MIN_DAYS [DAYS]
 
 The DOD requirement is "1" but a greater value is acceptable.'
   impact 0.5
-  tag check_id: 'C-38077r618936_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000075-GPOS-00043'
   tag gid: 'V-234889'
   tag rid: 'SV-234889r1009628_rule'
   tag stig_id: 'SLES-15-020200'
-  tag gtitle: 'SRG-OS-000075-GPOS-00043'
   tag fix_id: 'F-38040r986485_fix'
-  tag 'documentable'
-  tag cci: ['CCI-004066', 'CCI-000198']
-  tag nist: ['IA-5 (1) (h)', 'IA-5 (1) (d)']
+  tag cci: ['CCI-000198', 'CCI-004066']
+  tag nist: ['IA-5 (1) (d)', 'IA-5 (1) (h)']
+  tag 'host'
+  tag 'container'
+
+  # TODO: add inputs for a frequecny
+
+  bad_users = users.where { uid >= 1000 }.where { mindays < 1 }.usernames
+  in_scope_users = bad_users - input('exempt_home_users')
+
+  describe 'Users should not' do
+    it 'be able to change their password more then once a 24 hour period' do
+      failure_message = "The following users can update their password more then once a day: #{in_scope_users.join(', ')}"
+      expect(in_scope_users).to be_empty, failure_message
+    end
+  end
 end

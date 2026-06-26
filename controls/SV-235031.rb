@@ -28,14 +28,36 @@ configuration file:
 DISPLAYMANAGER_AUTOLOGIN=""
 DISPLAYMANAGER_PASSWORD_LESS_LOGIN="no"'
   impact 0.7
-  tag check_id: 'C-38219r619362_chk'
   tag severity: 'high'
+  tag gtitle: 'SRG-OS-000480-GPOS-00229'
   tag gid: 'V-235031'
   tag rid: 'SV-235031r991591_rule'
   tag stig_id: 'SLES-15-040430'
-  tag gtitle: 'SRG-OS-000480-GPOS-00229'
   tag fix_id: 'F-38182r619363_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('This requirement is Not Applicable inside a container, the containers host manages the containers filesystems') {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  custom_conf = '/etc/gdm/custom.conf'
+
+  if package('gnome-desktop3').installed?
+    if (f = file(custom_conf)).exist?
+      describe parse_config_file(custom_conf) do
+        its('daemon.AutomaticLoginEnable') { cmp false }
+      end
+    else
+      describe f do
+        it { should exist }
+      end
+    end
+  else
+    impact 0.0
+    describe 'The system does not have GDM installed' do
+      skip 'The system does not have GDM installed, this requirement is Not Applicable.'
+    end
+  end
 end

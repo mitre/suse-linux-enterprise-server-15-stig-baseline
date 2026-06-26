@@ -18,14 +18,26 @@ PASS_MAX_DAYS [DAYS]
 
 The DOD requirement is 60 days or less (greater than zero, as zero days will lock the account immediately).'
   impact 0.5
-  tag check_id: 'C-38079r986488_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000076-GPOS-00044'
   tag gid: 'V-234891'
   tag rid: 'SV-234891r1038967_rule'
   tag stig_id: 'SLES-15-020220'
-  tag gtitle: 'SRG-OS-000076-GPOS-00044'
   tag fix_id: 'F-38042r986489_fix'
-  tag 'documentable'
-  tag cci: ['CCI-004066', 'CCI-000199']
-  tag nist: ['IA-5 (1) (h)', 'IA-5 (1) (d)']
+  tag cci: ['CCI-000199', 'CCI-004066']
+  tag nist: ['IA-5 (1) (d)', 'IA-5 (1) (h)']
+  tag 'host'
+  tag 'container'
+
+  value = input('pass_max_days')
+
+  bad_users = users.where { uid >= 1000 }.where { value > 60 or maxdays.negative? }.usernames
+  in_scope_users = bad_users - input('exempt_home_users')
+
+  describe 'Users are not be able' do
+    it "to retain passwords for more then #{value} day(s)" do
+      failure_message = "The following users can update their password more then every #{value} day(s): #{in_scope_users.join(', ')}"
+      expect(in_scope_users).to be_empty, failure_message
+    end
+  end
 end

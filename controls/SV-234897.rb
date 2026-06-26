@@ -15,14 +15,18 @@ Edit "/etc/pam.d/common-password" and add the following line:
 
 password requisite pam_cracklib.so'
   impact 0.5
-  tag check_id: 'C-38085r618960_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00225'
   tag gid: 'V-234897'
   tag rid: 'SV-234897r991587_rule'
   tag stig_id: 'SLES-15-020290'
-  tag gtitle: 'SRG-OS-000480-GPOS-00225'
   tag fix_id: 'F-38048r618961_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+  tag 'container'
+
+  describe parse_config_file('/etc/security/pwquality.conf') do
+    its('dictcheck') { should eq '1' }
+  end
 end

@@ -16,14 +16,27 @@ Set the promiscuous mode of an interface to off with the following command:
 
 > sudo ip link set dev <devicename> promisc off'
   impact 0.5
-  tag check_id: 'C-38215r619350_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-235027'
   tag rid: 'SV-235027r991589_rule'
   tag stig_id: 'SLES-15-040390'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38178r619351_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  if input('promiscuous_mode_permitted')
+    describe command('ip link | grep -i promisc') do
+      its('stdout.strip') { should_not match(/^$/) }
+    end
+  else
+    describe command('ip link | grep -i promisc') do
+      its('stdout.strip') { should match(/^$/) }
+    end
+  end
 end

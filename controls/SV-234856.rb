@@ -17,14 +17,32 @@ Add or update the following line to the "/etc/modprobe.d/50-blacklist.conf" file
 
 blacklist usb-storage'
   impact 0.5
-  tag check_id: 'C-38044r618837_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000378-GPOS-00163'
   tag gid: 'V-234856'
   tag rid: 'SV-234856r958820_rule'
   tag stig_id: 'SLES-15-010480'
-  tag gtitle: 'SRG-OS-000378-GPOS-00163'
   tag fix_id: 'F-38007r618838_fix'
-  tag 'documentable'
   tag cci: ['CCI-001958']
   tag nist: ['IA-3']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers or virtualized environments', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system) || !virtualization.role.eql?('guest')
+  }
+
+  peripherals_package = input('peripherals_package')
+
+  if peripherals_package == 'usbguard'
+    describe command('usbguard list-rules') do
+      its('stdout') { should_not be_empty }
+      its('exit_status') { should eq 0 }
+    end
+  else
+    describe 'Non-standard package' do
+      it 'is handling peripherals' do
+        expect(peripherals_package).to exist
+      end
+    end
+  end
 end

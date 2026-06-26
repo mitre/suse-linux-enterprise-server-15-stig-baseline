@@ -24,4 +24,17 @@ Remove any instances of the "nullok" option in "/etc/pam.d/common-auth" and "/et
   tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+  tag 'container'
+
+  pam_auth_files = input('pam_auth_files')
+  file_list = pam_auth_files.values.join(' ')
+  bad_entries = command("grep -i nullok #{file_list}").stdout.lines.map(&:strip)
+
+  describe 'The system should be configureed' do
+    subject { command("grep -i nullok #{file_list}") }
+    it 'to not allow null passwords' do
+      expect(subject.stdout.strip).to be_empty, "The system is configured to allow null passwords. Remove any instances of the `nullok` option from auth files: \n\t- #{bad_entries.join("\n\t- ")}"
+    end
+  end
 end

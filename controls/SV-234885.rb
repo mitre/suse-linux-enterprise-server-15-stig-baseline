@@ -21,6 +21,26 @@ Edit "/etc/pam.d/common-password" and edit the line containing "pam_cracklib.so"
   tag gtitle: 'SRG-OS-000072-GPOS-00040'
   tag fix_id: 'F-38036r618925_fix'
   tag 'documentable'
-  tag cci: ['CCI-004066', 'CCI-000195']
-  tag nist: ['IA-5 (1) (h)', 'IA-5 (1) (b)']
+  tag cci: ['CCI-000195', 'CCI-004066']
+  tag nist: ['IA-5 (1) (b)', 'IA-5 (1) (h)']
+  tag 'host'
+  tag 'container'
+
+  setting = 'difok'
+  expected_value = input('difok')
+
+  pattern = /^[^#]*#{setting}\s*=\s*(?<value>\d+)$/
+  setting_check = command("grep #{setting} /etc/security/pwquality.conf /etc/security/pwquality.conf/*.conf").stdout.strip.scan(pattern).flatten
+
+  describe 'Password settings for the root account' do
+    it 'should be set' do
+      expect(setting_check).to_not be_empty, "'#{setting}' not found (or commented out) in conf file(s)"
+    end
+    it 'should only be set once' do
+      expect(setting_check.length).to eq(1), "'#{setting}' set more than once in conf file(s)"
+    end
+    it "should be set to be >= #{expected_value}" do
+      expect(setting_check.first.to_i).to be >= expected_value, "'#{setting}' set to less than '#{expected_value}' in conf file(s)"
+    end
+  end
 end
