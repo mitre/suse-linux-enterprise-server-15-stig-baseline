@@ -13,7 +13,9 @@ provisioner:
   hosts: all
   require_chef_for_busser: false
   require_ruby_for_busser: false
-  ansible_binary_path: /usr/local/bin
+  # No ansible_binary_path: on openSUSE kitchen-ansible installs ansible via
+  # zypper to /usr/bin (not /usr/local/bin as on RHEL/pip), so let it resolve
+  # ansible-playbook from PATH (ansible-galaxy already runs fine from there).
   ansible_verbose: true
   roles_path: spec/ansible/roles
   galaxy_ignore_certs: true
