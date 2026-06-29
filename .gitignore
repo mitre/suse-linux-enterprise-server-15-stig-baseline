@@ -22,3 +22,8 @@ cloud-init.yaml
 *.gem
 .byebug_history
 .vscode
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
