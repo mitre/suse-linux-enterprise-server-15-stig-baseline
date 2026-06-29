@@ -7,7 +7,7 @@ Check the home directory assignment for all nonprivileged users on the system wi
 
 Note: This may miss local interactive users that have been assigned a privileged User Identifier (UID). Evidence of interactive use may be obtained from a number of log files containing system logon information. The returned directory "/home/doduser" is used as an example.
 
-> awk -F: '($3>=1000)&&($7 !~ /nologin/){print $4, $6}' /etc/passwd)
+> awk -F: '($3>=1000)&&($7 !~ /nologin/){print $4, $6}' /etc/passwd\)
 250:/home/doduser
 
 Check the user's primary group with the following command:

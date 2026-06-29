@@ -7,7 +7,7 @@ Accordingly, patches, service packs, device drivers, or SLES 12 components must 
 Verifying the authenticity of the software prior to installation validates the integrity of the patch or upgrade received from a vendor. This ensures the software has not been tampered with and that it has been provided by a trusted vendor. Self-signed certificates are disallowed by this requirement. SLES 12 should not have to verify the software again. This requirement does not mandate DOD certificates for this purpose; however, the certificate used to verify the software must be from an approved Certification Authority (CA).
 
 For zypper on SUSE Linux Enterprise systems, GPG signature checking is enabled by default for all repositories, even if it is not explicitly set in /etc/zypp/zypp.conf or individual .repo files. The presence of the gpgcheck setting in repository files (like gpgcheck=1) or a global zypp.conf entry would override this default behavior if a user wanted to disable it (e.g., gpgcheck=0), but its absence simply means the default is in effect.'
-  desc 'check', %q(Verify the SLES 12 zypper tool has gpgcheck enabled with the following command: 
+  desc 'check', %q(Verify the SLES 12 zypper tool has gpgcheck enabled with the following command:
 
      > grep -i '^gpgcheck' /etc/zypp/zypp.conf
 

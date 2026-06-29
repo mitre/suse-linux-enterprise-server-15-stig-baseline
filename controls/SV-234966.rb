@@ -1,7 +1,7 @@
 control 'SV-234966' do
   title 'The audit-audispd-plugins must be installed on the SUSE operating system.'
   desc 'The audit-audispd-plugins must be installed on the SUSE operating system.'
-  desc 'check', 'Verify that the "audit-audispd-plugins" package is installed on the SUSE operating system. 
+  desc 'check', 'Verify that the "audit-audispd-plugins" package is installed on the SUSE operating system.
 
 Check that the "audit-audispd-plugins" package is installed on the SUSE operating system with the following command:
 

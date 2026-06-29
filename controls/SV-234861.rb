@@ -11,7 +11,7 @@ Check that the SUSE operating system prevents leaking of internal kernel address
 kernel.kptr_restrict = 1
 
 If the kernel parameter "kptr_restrict" is not equal to "1" or nothing is returned, this is a finding.'
-  desc 'fix', %q(Configure the SUSE operating system to prevent leaking of internal kernel addresses by running the following command: 
+  desc 'fix', %q(Configure the SUSE operating system to prevent leaking of internal kernel addresses by running the following command:
 
 > sudo sysctl -w kernel.kptr_restrict=1
 

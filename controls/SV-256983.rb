@@ -12,7 +12,7 @@ Verify that the "mailx" package is installed on the system:
      > sudo zypper se mailx
 
      i | mailx | A MIME-Capable Implementation of the mailx Command | package
-	 
+
 If "mailx" package is not installed, this is a finding.'
   desc 'fix', 'Install the "mailx" package on the system:
 

@@ -3,7 +3,7 @@ control 'SV-234859' do
   desc 'Use of weak or untested encryption algorithms undermines the purposes of using encryption to protect data. The SUSE operating system must implement cryptographic modules adhering to the higher standards approved by the federal government since this provides assurance they have been tested and validated.'
   desc 'check', 'Verify the SUSE operating system is running in FIPS mode by running the following command.
 
-> cat /proc/sys/crypto/fips_enabled 
+> cat /proc/sys/crypto/fips_enabled
 
 1
 

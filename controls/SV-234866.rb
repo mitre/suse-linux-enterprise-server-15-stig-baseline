@@ -16,7 +16,7 @@ Ask the System Administrator if any temporary accounts have been added to the sy
 Verify each of these accounts has an expiration date that is within "72" hours of its creation.
 
 If any temporary accounts have no expiration date set or do not expire within "72" hours of their creation, this is a finding.'
-  desc 'fix', 'In the event temporary accounts are required, configure the SUSE operating system to terminate them after "72" hours. 
+  desc 'fix', 'In the event temporary accounts are required, configure the SUSE operating system to terminate them after "72" hours.
 
 For every temporary account, run the following command to set an expiration date on it, substituting "system_account_name" with the appropriate value:
 

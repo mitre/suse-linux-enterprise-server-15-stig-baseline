@@ -1,6 +1,6 @@
 control 'SV-234853' do
   title 'The SUSE operating system must reauthenticate users when changing authenticators, roles, or escalating privileges.'
-  desc 'Without reauthentication, users may access resources or perform tasks for which they do not have authorization. 
+  desc 'Without reauthentication, users may access resources or perform tasks for which they do not have authorization.
 
 When the SUSE operating system provides the capability to change user authenticators, change security roles, or escalate a functional capability, it is critical the user reauthenticate.'
   desc 'check', %q(Verify that the SUSE operating system requires reauthentication when changing authenticators, roles, or escalating privileges.

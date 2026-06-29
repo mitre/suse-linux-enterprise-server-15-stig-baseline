@@ -15,7 +15,7 @@ If the command does not return a line, this is a finding.
 
 Note:
 The "-k" allows for specifying an arbitrary identifier. The string following "-k" does not need to match the example output above.)
-  desc 'fix', 'Configure the SUSE operating system to generate an audit record for any all modifications to the "lastlog" file occur. 
+  desc 'fix', 'Configure the SUSE operating system to generate an audit record for any all modifications to the "lastlog" file occur.
 
 Add or update the following rule to "/etc/audit/rules.d/audit.rules":
 

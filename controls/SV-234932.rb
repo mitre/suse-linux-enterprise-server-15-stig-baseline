@@ -3,7 +3,7 @@ control 'SV-234932' do
   desc 'Without generating audit records specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
 
 Audit records can be generated from various components within the information system (e.g., module or policy filter).'
-  desc 'check', %q(Verify an audit record is generated for all uses of the "sudoedit" command. 
+  desc 'check', %q(Verify an audit record is generated for all uses of the "sudoedit" command.
 
 Check that the command is being audited by performing the following command:
 
@@ -15,7 +15,7 @@ If the command does not return any output or the returned line is commented out,
 
 Note:
 The "-k" allows for specifying an arbitrary identifier. The string following "-k" does not need to match the example output above.)
-  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "sudoedit" command. 
+  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "sudoedit" command.
 
 Add or update the following rules in the "/etc/audit/rules.d/audit.rules" file:
 

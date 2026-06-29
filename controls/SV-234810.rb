@@ -5,7 +5,7 @@ control 'SV-234810' do
 The session lock is implemented at the point where session activity can be determined.
 
 Regardless of where the session lock is determined and implemented, once invoked, the session lock must remain in place until the user reauthenticates. No other activity aside from reauthentication must unlock the system.'
-  desc 'check', 'Verify the SUSE operating system allows the user to lock the GUI. 
+  desc 'check', 'Verify the SUSE operating system allows the user to lock the GUI.
 
 Note: If the system does not have a graphical user interface installed, this requirement is Not Applicable.
 

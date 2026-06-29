@@ -17,7 +17,7 @@ If the ctrl-alt-del.target is not masked, this is a finding.'
 
 > sudo systemctl mask ctrl-alt-del.target
 
-And reload the daemon to take effect 
+And reload the daemon to take effect
 
 > sudo systemctl daemon-reload'
   impact 0.7

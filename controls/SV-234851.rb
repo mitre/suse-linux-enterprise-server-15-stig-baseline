@@ -23,7 +23,7 @@ If the "aide" package is not installed, install it with the following command:
 
 Configure the file integrity tool to automatically run on the system at least weekly. The following example output is generic. It will set cron to run AIDE weekly, but other file integrity tools may be used:
 
-     > cat /etc/cron.weekly/aide 
+     > cat /etc/cron.weekly/aide
      0 0 * * * /usr/bin/aide --check | /bin/mail -s "$HOSTNAME - Daily AIDE integrity check run" root@example_server_name.mil
 
 Note: Per requirement SLES-15-010418, the "mailx" package must be installed on the system to enable email functionality.'

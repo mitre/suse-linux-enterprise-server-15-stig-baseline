@@ -1,11 +1,11 @@
 control 'SV-234813' do
   title 'The SUSE operating system must initiate a session lock after a 10-minute period of inactivity.'
-  desc "A session time-out lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system but does not log out because of the temporary nature of the absence. 
+  desc "A session time-out lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system but does not log out because of the temporary nature of the absence.
 
 Rather than relying on the users to manually lock their SUSE operating system session prior to vacating the vicinity, the SUSE operating system needs to be able to identify when a user's session has idled and take action to initiate the session lock.
 
 The session lock is implemented at the point where session activity can be determined and/or controlled."
-  desc 'check', 'Verify the SUSE operating system must initiate a session logout after a 10-minute period of inactivity for all connection types. 
+  desc 'check', 'Verify the SUSE operating system must initiate a session logout after a 10-minute period of inactivity for all connection types.
 
 Check the proper script exists to kill an idle session after a 10-minute period of inactivity with the following command:
 

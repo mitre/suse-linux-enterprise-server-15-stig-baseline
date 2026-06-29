@@ -39,10 +39,10 @@ system-db:local
 [org/gnome/settings-daemon/plugins/media-keys]
 logout=''
 
-/etc/dconf/db/local.d/locks/01-fips-locks 
+/etc/dconf/db/local.d/locks/01-fips-locks
 /org/gnome/settings-daemon/plugins/media-keys/logout
 
-4. Update the dconf database: 
+4. Update the dconf database:
 
 > sudo dconf update"
   impact 0.7

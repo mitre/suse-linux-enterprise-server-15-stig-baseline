@@ -5,7 +5,7 @@ control 'SV-234984' do
 
 Check the system for the existence of these files with the following command:
 
-> sudo find / \( -path /.snapshots -o -path /sys -o -path /proc \\) -prune -o -name '.shosts' -print
+> sudo find / \\( -path /.snapshots -o -path /sys -o -path /proc \\) -prune -o -name '.shosts' -print
 
 If any ".shosts" files are found on the system, this is a finding.)
   desc 'fix', 'Remove any ".shosts" files found on the SUSE operating system.

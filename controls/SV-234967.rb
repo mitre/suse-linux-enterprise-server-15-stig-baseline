@@ -9,7 +9,7 @@ Allowing devices and users to connect to or from the system without first authen
 transport = krb5
 
 If "transport" is not set to "krb5", or is commented out, this is a finding.'
-  desc 'fix', 'Configure the SUSE operating system audit event multiplexor to use Kerberos by editing the "/etc/audit/audisp-remote.conf" file. 
+  desc 'fix', 'Configure the SUSE operating system audit event multiplexor to use Kerberos by editing the "/etc/audit/audisp-remote.conf" file.
 
 Edit or add the following line to match the text below:
 

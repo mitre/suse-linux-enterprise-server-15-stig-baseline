@@ -1,6 +1,6 @@
 control 'SV-234879' do
   title %q(The SUSE operating system must use the invoking user's password for privilege escalation when using "sudo".)
-  desc %q(The sudoers security policy requires that users authenticate themselves before they can use sudo. When sudoers requires authentication, it validates the invoking user's credentials. If the rootpw, targetpw, or runaspw flags are defined and not disabled, by default the operating system will prompt the invoking user for the "root" user password. 
+  desc %q(The sudoers security policy requires that users authenticate themselves before they can use sudo. When sudoers requires authentication, it validates the invoking user's credentials. If the rootpw, targetpw, or runaspw flags are defined and not disabled, by default the operating system will prompt the invoking user for the "root" user password.
 For more information on each of the listed configurations, reference the sudoers(5) manual page.)
   desc 'check', %q(Verify that the sudoers security policy is configured to use the invoking user's password for privilege escalation.
 

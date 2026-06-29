@@ -23,7 +23,7 @@ If the output does not produce rules containing "-F exit=-EACCES", this is a fin
 
 Note:
 The "-k" allows for specifying an arbitrary identifier. The string following "-k" does not need to match the example output above.)
-  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "creat", "open", "openat", "open_by_handle_at", "truncate", and "ftruncate" system calls. 
+  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "creat", "open", "openat", "open_by_handle_at", "truncate", and "ftruncate" system calls.
 
 Add or update the following rules to "/etc/audit/rules.d/audit.rules":
 

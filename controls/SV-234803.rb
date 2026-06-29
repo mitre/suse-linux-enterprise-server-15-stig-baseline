@@ -27,7 +27,7 @@ Check the "motd" (message of the day) file to verify that it contains the DOD re
 
 > more /etc/issue
 
-The output must display the following DOD-required banner text: 
+The output must display the following DOD-required banner text:
 
 "You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
 
