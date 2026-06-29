@@ -93,6 +93,10 @@ jobs:
           # ship. So provision the Kitchen login user offline with virt-customize
           # instead of relying on cloud-init at boot.
           export LIBGUESTFS_BACKEND=direct
+          # libguestfs/supermin builds its appliance by READING the host kernel,
+          # but GitHub runners ship /boot/vmlinuz-* mode 0600 (root-only), which
+          # makes supermin fail with "exited with error status 1". Make it readable.
+          sudo chmod 0644 /boot/vmlinuz-* || true
           U='${{ env.LXD_VM_USERNAME }}'
           virt-customize -a disk.qcow2 \
             --run-command "useradd -m -s /bin/bash -G users $U || true" \
