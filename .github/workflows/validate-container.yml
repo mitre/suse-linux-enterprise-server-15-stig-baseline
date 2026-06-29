@@ -76,6 +76,14 @@ jobs:
       - name: Vendor the Profile
         run: bundle exec cinc-auditor vendor . --overwrite
 
+      - name: Pre-pull the container image
+        # kitchen-dokken's registry client does not perform SUSE's SCC anonymous
+        # token exchange, so it 401s pulling BCI from registry.suse.com. The docker
+        # CLI handles it (and the Iron Bank login above covers the hardened image),
+        # so pull here; kitchen.container.yml sets pull_platform_image:false and
+        # uses the now-local image.
+        run: docker pull "${{ matrix.suite == 'hardened' && env.HARDENED_CONTAINER_IMAGE || env.VANILLA_CONTAINER_IMAGE }}"
+
       - name: Run kitchen test
         if: ${{ !contains(steps.commit.outputs.message, 'only-validate-profile') }}
         continue-on-error: true
