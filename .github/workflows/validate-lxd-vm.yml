@@ -37,7 +37,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Install host packages
-        run: sudo apt-get update && sudo apt-get -y install jq qemu-utils gdisk
+        run: sudo apt-get update && sudo apt-get -y install jq qemu-utils gdisk libguestfs-tools
 
       - name: Check out repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
@@ -63,11 +63,10 @@ jobs:
       - name: Generate ephemeral SSH keypair for Kitchen
         run: |
           set -euo pipefail
-          # The VM and runner are both torn down at job end, and we inject the
-          # public key into the guest via cloud-init at launch (next steps), so we
-          # control both halves at runtime. A throwaway keypair generated here is
-          # all Kitchen needs to SSH to the VM over the private LXD NAT bridge --
-          # no long-lived secret to store or rotate.
+          # The VM and runner are both torn down at job end, and we bake the public
+          # key into the image offline (next steps), so we control both halves at
+          # runtime. A throwaway keypair generated here is all Kitchen needs to SSH
+          # to the VM over the private LXD NAT bridge -- no long-lived secret.
           KEY="$RUNNER_TEMP/kitchen_key"
           ssh-keygen -t ed25519 -N '' -C "kitchen-ci-ephemeral" -f "$KEY"
           echo "KITCHEN_SSH_KEY=$KEY" >> "$GITHUB_ENV"
@@ -85,6 +84,26 @@ jobs:
           qemu-img resize disk.raw +16M
           sgdisk -e disk.raw
           qemu-img convert -O qcow2 disk.raw disk.qcow2
+
+      - name: Bake Kitchen login user + key into the image
+        run: |
+          set -euo pipefail
+          # Generic cloud images can't receive LXD's cloud-init.user-data: LXD
+          # delivers it through the lxd-agent over vsock, which these images don't
+          # ship. So provision the Kitchen login user offline with virt-customize
+          # instead of relying on cloud-init at boot.
+          export LIBGUESTFS_BACKEND=direct
+          U='${{ env.LXD_VM_USERNAME }}'
+          virt-customize -a disk.qcow2 \
+            --run-command "useradd -m -s /bin/bash -G users $U || true" \
+            --run-command "printf '%s ALL=(ALL) NOPASSWD:ALL\n' '$U' > /etc/sudoers.d/99-kitchen && chmod 0440 /etc/sudoers.d/99-kitchen" \
+            --run-command "systemctl enable sshd.service || true"
+          virt-customize -a disk.qcow2 --ssh-inject "$U:file:$KITCHEN_SSH_PUB"
+          if [ -n "${SCC_REGCODE:-}" ]; then
+            virt-customize -a disk.qcow2 \
+              --write "/etc/scc-regcode.env:SCC_REGCODE=$SCC_REGCODE" \
+              --run-command 'chmod 0600 /etc/scc-regcode.env'
+          fi
 
       - name: Import image into LXD
         run: |
@@ -105,38 +124,9 @@ jobs:
         run: |
           set -euo pipefail
           NAME="${{ matrix.suite }}-${{ env.PLATFORM }}"
-          PUBKEY="$(cat "$KITCHEN_SSH_PUB")"
-
-          # cloud-init injects the Kitchen login user + key and grants passwordless
-          # sudo. STIG/CIS hardening locks down root SSH, so we connect as a
-          # dedicated unprivileged user rather than root.
-          cat > cloud-init.yaml <<EOF
-          #cloud-config
-          users:
-            - name: ${{ env.LXD_VM_USERNAME }}
-              groups: [users, wheel]
-              shell: /bin/bash
-              sudo: ALL=(ALL) NOPASSWD:ALL
-              ssh_authorized_keys:
-                - $PUBKEY
-          ssh_pwauth: false
-          EOF
-
-          # If an SCC registration code is configured, drop it on the guest so the
-          # Kitchen pre_converge step can register and enable zypper repos.
-          if [ -n "${SCC_REGCODE:-}" ]; then
-            cat >> cloud-init.yaml <<EOF
-          write_files:
-            - path: /etc/scc-regcode.env
-              permissions: '0600'
-              content: |
-                SCC_REGCODE=$SCC_REGCODE
-          EOF
-          fi
-
-          lxc launch stig-target "$NAME" --vm \
-            -c limits.memory=4GiB \
-            -c cloud-init.user-data="$(cat cloud-init.yaml)"
+          # The login user + key + (optional) SCC env are already baked into the
+          # image, so a plain launch is all that is needed.
+          lxc launch stig-target "$NAME" --vm -c limits.memory=4GiB
 
           for i in $(seq 1 30); do
             lxc list --format=csv | grep -q "$NAME.*RUNNING" && break
@@ -155,6 +145,16 @@ jobs:
           done
           [ -n "$ipv4" ] || { echo "No VM IPv4 found"; lxc info "$NAME"; exit 1; }
           echo "KITCHEN_HOST=$ipv4" >> "$GITHUB_ENV"
+
+      - name: VM boot diagnostics
+        continue-on-error: true
+        run: |
+          NAME="${{ matrix.suite }}-${{ env.PLATFORM }}"
+          # Give the guest a moment to settle, then dump the serial console so we
+          # can see boot / user-provisioning state if SSH later fails.
+          sleep 20
+          echo "=== lxc info ==="; lxc info "$NAME" || true
+          echo "=== serial console log (tail) ==="; lxc console "$NAME" --show-log 2>&1 | tail -50 || true
 
       - name: Run kitchen test
         run: bundle exec kitchen test --destroy=always ${{ matrix.suite }}-${{ env.PLATFORM }} || true
