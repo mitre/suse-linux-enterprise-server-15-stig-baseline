@@ -28,4 +28,15 @@ Note: The btmp, wtmp, and lastlog files are excluded. Refer to the Discussion fo
   tag 'documentable'
   tag cci: ['CCI-001312']
   tag nist: ['SI-11 a']
+
+  # "for every log file..." => pass-when-empty. The STIG excludes btmp/wtmp/lastlog,
+  # which legitimately need wider permissions for the lastlog database to work.
+  # No typed resource covers a recursive perm scan, so use find and name offenders.
+  too_permissive = command("find /var/log -perm /137 ! -name '*[bw]tmp' ! -name '*lastlog' -type f -exec stat -c '%n %a' {} +").stdout.strip.split("\n").reject(&:empty?)
+
+  describe 'Log files under /var/log more permissive than 0640 (excluding btmp/wtmp/lastlog)' do
+    it 'should not exist' do
+      expect(too_permissive).to be_empty, "Log files more permissive than 0640:\n\t- #{too_permissive.join("\n\t- ")}"
+    end
+  end
 end

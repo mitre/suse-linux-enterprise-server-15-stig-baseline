@@ -34,4 +34,23 @@ For every temporary account, run the following command to set an expiration date
   tag 'documentable'
   tag cci: ['CCI-000016']
   tag nist: ['AC-2 (2)']
+
+  # Which accounts are "temporary" is out-of-band knowledge, so this is operator-
+  # declared via input('temporary_accounts'). Empty => Not Reviewed (ask the SA).
+  temporary_accounts = input('temporary_accounts')
+
+  if temporary_accounts.empty?
+    describe 'Temporary accounts' do
+      skip "input('temporary_accounts') is empty; ask the SA whether any temporary accounts exist and, for each, confirm an account expiration date within 72 hours of creation (chage -l <account>)."
+    end
+  else
+    # Failing = declared temporary accounts whose /etc/shadow expiry field (chage -E) is unset.
+    accounts_without_expiry = shadow.where { temporary_accounts.include?(user) && expiry_date.to_s.strip.empty? }.users
+
+    describe 'Temporary accounts without an account expiration date (chage -E)' do
+      it 'should have an expiration date set on every temporary account' do
+        expect(accounts_without_expiry).to be_empty, "Temporary accounts with no expiration date set:\n\t- #{accounts_without_expiry.join("\n\t- ")}"
+      end
+    end
+  end
 end

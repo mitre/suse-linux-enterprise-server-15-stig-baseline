@@ -56,4 +56,13 @@ To enable remote connection again, panic mode needs to be disabled.
   tag 'documentable'
   tag cci: ['CCI-002322']
   tag nist: ['AC-17 (9)']
+
+  only_if('This control is Not Applicable to containers (the host manages the firewall)', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe service('firewalld') do
+    it { should be_enabled }
+    it { should be_running }
+  end
 end

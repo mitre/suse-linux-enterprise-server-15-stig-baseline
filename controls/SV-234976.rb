@@ -39,4 +39,13 @@ or issue the following command:
   tag 'documentable'
   tag cci: ['CCI-000172']
   tag nist: ['AU-12 c']
+
+  only_if('This control is Not Applicable to containers (auditd runs on the host)', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe auditd.file('/var/log/wtmp') do
+    it { should exist }
+    its('permissions.flatten') { should include('w', 'a') }
+  end
 end

@@ -1080,3 +1080,10 @@ inputs:
     description: pwquality minimum number of special characters (negative = required minimum)
     type: Numeric
     value: -1
+
+  - name: approved_timezones
+    description: Time zones the system is permitted to use (SLES-15-010410 requires UTC or GMT)
+    type: Array
+    value:
+      - UTC
+      - GMT
