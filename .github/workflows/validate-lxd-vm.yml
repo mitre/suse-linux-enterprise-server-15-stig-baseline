@@ -105,7 +105,12 @@ jobs:
             --run-command "useradd -m -s /bin/bash -G users $U || true" \
             --run-command "printf '%s ALL=(ALL) NOPASSWD:ALL\n' '$U' > /etc/sudoers.d/99-kitchen && chmod 0440 /etc/sudoers.d/99-kitchen" \
             --run-command "systemctl enable sshd.service || true"
-          virt-customize --no-network -a disk.qcow2 --ssh-inject "$U:file:$KITCHEN_SSH_PUB"
+          # Give the user a random (unused) password so its shadow field isn't "!"
+          # (locked). SSH stays key-only, but the SUSE15-CIS role refuses to harden
+          # an account it sees as locked (rule 5_2_4 safety guard).
+          virt-customize --no-network -a disk.qcow2 \
+            --ssh-inject "$U:file:$KITCHEN_SSH_PUB" \
+            --password "$U:password:$(openssl rand -hex 16)"
           if [ -n "${SCC_REGCODE:-}" ]; then
             virt-customize --no-network -a disk.qcow2 \
               --write "/etc/scc-regcode.env:SCC_REGCODE=$SCC_REGCODE" \
