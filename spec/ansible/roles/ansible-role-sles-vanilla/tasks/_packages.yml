@@ -1,17 +1,20 @@
 ---
-# Install the utilities the profile and harness expect.
-#
-# openSUSE Leap 15.6's default Python is 3.6, but recent community.general
-# releases require Python 3.7+ in their modules, so community.general.zypper (and
-# ansible.builtin.package, which routes to it on SUSE) fails to even parse on the
-# target. Drive zypper through the builtin command module instead — it works
-# under the box's Python 3.6 ansible. (Full "zypper update" is intentionally
-# dropped: it's slow and unnecessary for running the scan against a vanilla box.)
-- name: Refresh zypper repositories
-  ansible.builtin.command: zypper --non-interactive --gpg-auto-import-keys refresh
-  changed_when: false
+# Bring a stock SLES 15 box up to date and install the utilities the profile and
+# the test harness expect. Requires zypper repositories to be available (the JeOS
+# image needs SCC registration for this -- see kitchen.lxd.yml pre_converge).
+- name: Upgrade all packages
+  community.general.zypper:
+    name: "*"
+    state: latest
+    update_cache: true
 
-- name: Install baseline utility packages
-  ansible.builtin.command: zypper --non-interactive install -y bc jq vim wget curl unzip
-  register: zypper_install
-  changed_when: "'Nothing to do' not in (zypper_install.stdout | default(''))"
+- name: Install required packages
+  community.general.zypper:
+    name:
+      - jq
+      - vim
+      - bc
+      - unzip
+      - wget
+      - curl
+    state: present

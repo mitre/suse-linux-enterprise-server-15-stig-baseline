@@ -13,9 +13,21 @@ provisioner:
   hosts: all
   require_chef_for_busser: false
   require_ruby_for_busser: false
-  # No ansible_binary_path: on openSUSE kitchen-ansible installs ansible via
-  # zypper to /usr/bin (not /usr/local/bin as on RHEL/pip), so let it resolve
-  # ansible-playbook from PATH (ansible-galaxy already runs fine from there).
+  # Do NOT let kitchen-ansible install Ansible: its built-in SUSE installer
+  # targets openSUSE Leap 15.2 + Python 2. We provision Python 3.11 + a modern
+  # ansible-core ourselves in pre_converge (the system python3 is 3.6, which
+  # can't parse current community.general modules) and point Kitchen at it.
+  require_ansible_repo: false
+  require_ansible_omnibus: false
+  require_ansible_source: false
+  require_pip: false
+  require_pip3: false
+  ansible_binary_path: /opt/ansible-venv/bin
+  ansible_connection: local
+  # kitchen-ansible has no ansible_python_interpreter key; inject it as an extra
+  # var so modules run under 3.11 instead of the system 3.6.
+  extra_vars:
+    ansible_python_interpreter: /usr/bin/python3.11
   ansible_verbose: true
   roles_path: spec/ansible/roles
   galaxy_ignore_certs: true
@@ -61,12 +73,19 @@ lifecycle:
         sudo zypper --non-interactive --gpg-auto-import-keys refresh || true
         sudo zypper --non-interactive update || true
         echo ""
-        echo "+++ Installing needed packages for workflow and utility +++"
-        sudo zypper --non-interactive install -y bc bind-utils vim git wget gcc libffi-devel libopenssl-devel python3 python3-pip || true
+        echo "+++ Installing needed packages + Python 3.11 +++"
+        # python311 is in Leap's default OSS repo (no registration); on SLES the
+        # SUSEConnect sle-module-python3 step above provides it. /usr/bin/python3
+        # stays 3.6; 3.11 lives at /usr/bin/python3.11.
+        sudo zypper --non-interactive install -y bc bind-utils vim git wget gcc libffi-devel libopenssl-devel python311 python311-pip || true
         echo ""
-        echo "+++ Installing Ansible +++"
-        export PATH=/usr/local/bin:$PATH
-        sudo python3 -m pip install ansible jmespath
+        echo "+++ Installing a modern ansible-core in a Python 3.11 virtualenv +++"
+        # Build the Ansible controller in a dedicated 3.11 venv: deterministic
+        # binary path for kitchen-ansible, sidesteps PEP-668 externally-managed,
+        # and ansible-core 2.18 is the floor for current community.general.
+        sudo python3.11 -m venv /opt/ansible-venv
+        sudo /opt/ansible-venv/bin/pip install --upgrade pip
+        sudo /opt/ansible-venv/bin/pip install "ansible-core>=2.18,<2.19"
         echo ""
         echo "+++ Keeping the kitchen sudo user usable after the hardening phase +++"
         sudo chage -d $(( $( date +%s ) / 86400 )) <%= ENV.fetch("LXD_VM_USERNAME", "sles") %> || true
