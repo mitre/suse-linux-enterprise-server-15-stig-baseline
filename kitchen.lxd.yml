@@ -86,6 +86,9 @@ lifecycle:
         sudo python3.11 -m venv /opt/ansible-venv
         sudo /opt/ansible-venv/bin/pip install --upgrade pip
         sudo /opt/ansible-venv/bin/pip install "ansible-core>=2.18,<2.19"
+        # kitchen-ansible runs ansible-galaxy as a bare command (PATH lookup),
+        # not via ansible_binary_path, so expose the venv binaries on PATH.
+        sudo ln -sf /opt/ansible-venv/bin/ansible /opt/ansible-venv/bin/ansible-playbook /opt/ansible-venv/bin/ansible-galaxy /opt/ansible-venv/bin/ansible-doc /opt/ansible-venv/bin/ansible-config /usr/local/bin/
         echo ""
         echo "+++ Keeping the kitchen sudo user usable after the hardening phase +++"
         sudo chage -d $(( $( date +%s ) / 86400 )) <%= ENV.fetch("LXD_VM_USERNAME", "sles") %> || true
