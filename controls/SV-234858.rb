@@ -28,4 +28,17 @@ offline_credentials_expiration = 1'
   tag 'documentable'
   tag cci: ['CCI-002007']
   tag nist: ['IA-5 (13)']
+
+  sssd_conf = '/etc/sssd/sssd.conf'
+
+  if file(sssd_conf).exist?
+    describe parse_config_file(sssd_conf) do
+      its('offline_credentials_expiration') { should cmp 1 }
+    end
+  else
+    impact 0.0
+    describe 'SSSD offline credential caching' do
+      skip "#{sssd_conf} is not present; SSSD is not in use, so this requirement is Not Applicable."
+    end
+  end
 end

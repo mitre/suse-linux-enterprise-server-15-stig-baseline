@@ -27,4 +27,16 @@ disk_full_action = syslog'
   tag 'documentable'
   tag cci: ['CCI-001851']
   tag nist: ['AU-4 (1)']
+
+  only_if('This control is Not Applicable to containers (auditd runs on the host)', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  allowed = input('disk_full_action').map(&:downcase)
+  action = parse_config_file('/etc/audit/audisp-remote.conf').params['disk_full_action'].to_s.downcase
+
+  describe 'audisp disk_full_action' do
+    subject { action }
+    it { should be_in allowed }
+  end
 end
