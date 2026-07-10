@@ -40,11 +40,11 @@ or issue the following command:
   tag nist: ['AU-12 a', 'AU-3 a', 'AU-3 (1)', 'AU-12 c', 'MA-4 (1) (a)']
   tag 'host'
 
-  audit_command = '/var/log/lastlog'
-
   only_if('This control is Not Applicable to containers', impact: 0.0) {
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
+
+  audit_command = '/var/log/tallylog'
 
   describe 'Command' do
     it "#{audit_command} is audited properly" do

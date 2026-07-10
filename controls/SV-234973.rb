@@ -42,22 +42,27 @@ or issue the following command:
   tag cci: ['CCI-000172']
   tag nist: ['AU-12 c']
 
-  only_if('This control is Not Applicable to containers (auditd runs on the host)', impact: 0.0) {
+  audit_syscalls = %w[unlink unlinkat rename renameat rmdir]
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  audit_syscalls = %w[unlink unlinkat rename renameat rmdir]
-  arches = %w[b32 b64]
-  # Failing = (arch, syscall) pairs NOT covered by an "always,exit" audit rule.
-  uncovered = arches.product(audit_syscalls).reject do |a, sc|
-    rule = auditd.syscall(sc).where { arch == a }
-    rule.action.include?('always') && rule.list.include?('exit')
-  end
-  missing_rules = uncovered.map { |a, sc| "arch=#{a} syscall=#{sc}" }
-
-  describe 'Auditd rules for unlink/unlinkat/rename/renameat/rmdir on both b32 and b64' do
-    it 'should audit every listed syscall on both architectures' do
-      expect(missing_rules).to be_empty, "Missing audit rules:\n\t- #{missing_rules.join("\n\t- ")}"
+  describe 'Syscall' do
+    audit_syscalls.each do |audit_syscall|
+      it "#{audit_syscall} is audited properly" do
+        audit_rule = auditd.syscall(audit_syscall)
+        expect(audit_rule).to exist
+        expect(audit_rule.action.uniq).to cmp 'always'
+        expect(audit_rule.list.uniq).to cmp 'exit'
+        if os.arch.match(/64/)
+          expect(audit_rule.arch.uniq).to include('b32', 'b64')
+        else
+          expect(audit_rule.arch.uniq).to cmp 'b32'
+        end
+        expect(audit_rule.fields.flatten).to include('auid>=1000', 'auid!=-1')
+        expect(audit_rule.key.uniq).to include(input('audit_rule_keynames').merge(input('audit_rule_keynames_overrides'))[audit_syscall])
+      end
     end
   end
 end

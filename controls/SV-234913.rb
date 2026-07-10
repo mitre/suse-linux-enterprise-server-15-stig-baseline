@@ -43,26 +43,19 @@ or issue the following command:
   tag nist: ['AU-12 a', 'AU-3 a', 'AU-3 (1)', 'AU-12 c', 'MA-4 (1) (a)']
   tag 'host'
 
-  audit_syscalls = ['init_module', 'finit_module']
+  audit_commands = ['/etc/sudoers', '/etc/sudoers.d']
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  describe 'Syscall' do
-    audit_syscalls.each do |audit_syscall|
-      it "#{audit_syscall} is audited properly" do
-        audit_rule = auditd.syscall(audit_syscall)
+  describe 'Command' do
+    audit_commands.each do |audit_command|
+      it "#{audit_command} is audited properly" do
+        audit_rule = auditd.file(audit_command)
         expect(audit_rule).to exist
-        expect(audit_rule.action.uniq).to cmp 'always'
-        expect(audit_rule.list.uniq).to cmp 'exit'
-        if os.arch.match(/64/)
-          expect(audit_rule.arch.uniq).to include('b32', 'b64')
-        else
-          expect(audit_rule.arch.uniq).to cmp 'b32'
-        end
-        expect(audit_rule.fields.flatten).to include('auid>=1000', 'auid!=-1')
-        expect(audit_rule.key.uniq).to include(input('audit_rule_keynames').merge(input('audit_rule_keynames_overrides'))[audit_syscall])
+        expect(audit_rule.permissions.flatten).to include('w', 'a')
+        expect(audit_rule.key.uniq).to include(input('audit_rule_keynames').merge(input('audit_rule_keynames_overrides'))[audit_command])
       end
     end
   end

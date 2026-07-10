@@ -43,7 +43,7 @@ or issue the following command:
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  audit_command = '/etc/sudoers'
+  audit_command = '/etc/security/opasswd'
 
   describe 'Command' do
     it "#{audit_command} is audited properly" do

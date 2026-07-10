@@ -44,22 +44,23 @@ or issue the following command:
   tag nist: ['AU-12 a', 'AU-3 a', 'AU-3 (1)', 'AU-12 c', 'MA-4 (1) (a)']
   tag 'host'
 
-  audit_command = '/usr/bin/setfacl'
+  # umount is a 32-bit-only syscall; umount2 exists on both architectures, so arch is not asserted uniformly.
+  audit_syscalls = %w[umount umount2]
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  describe 'Command' do
-    it "#{audit_command} is audited properly" do
-      audit_rule = auditd.file(audit_command)
-      expect(audit_rule).to exist
-      expect(audit_rule.action.uniq).to cmp 'always'
-      expect(audit_rule.list.uniq).to cmp 'exit'
-      expect(audit_rule.fields.flatten).to include('perm=x', 'auid>=1000', 'auid!=-1')
-      expect(audit_rule.key.uniq).to include(input('audit_rule_keynames').merge(input('audit_rule_keynames_overrides'))[audit_command])
-      auditctl_output = command("sudo auditctl -l | grep #{audit_command}").stdout.strip
-      expect(auditctl_output).to match(/-S\s+all\b/)
+  describe 'Syscall' do
+    audit_syscalls.each do |audit_syscall|
+      it "#{audit_syscall} is audited properly" do
+        audit_rule = auditd.syscall(audit_syscall)
+        expect(audit_rule).to exist
+        expect(audit_rule.action.uniq).to cmp 'always'
+        expect(audit_rule.list.uniq).to cmp 'exit'
+        expect(audit_rule.fields.flatten).to include('auid>=1000', 'auid!=-1')
+        expect(audit_rule.key.uniq).to include(input('audit_rule_keynames').merge(input('audit_rule_keynames_overrides'))[audit_syscall])
+      end
     end
   end
 end

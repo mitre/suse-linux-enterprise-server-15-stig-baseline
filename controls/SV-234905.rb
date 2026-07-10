@@ -42,7 +42,7 @@ or issue the following command:
   tag nist: ['AU-3 a', 'AU-12 a', 'AU-12 c', 'MA-4 (1) (a)']
   tag 'host'
 
-  audit_command = '/usr/bin/umount'
+  audit_command = '/usr/lib/ssh/ssh-keysign'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
     !%w[docker podman kubepods lxc].include?(virtualization.system)

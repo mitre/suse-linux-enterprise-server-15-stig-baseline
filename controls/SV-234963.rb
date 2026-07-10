@@ -44,22 +44,17 @@ or issue the following command:
   tag nist: ['AU-12 c', 'CM-5 (1) (b)', 'AU-7 a', 'AU-7 b', 'AU-8 b', 'AU-12 (3)', 'AC-6 (9)', 'CM-5 (1)']
   tag 'host'
 
-  audit_command = '/usr/sbin/init'
-
   only_if('This control is Not Applicable to containers', impact: 0.0) {
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  describe 'Command' do
-    it "#{audit_command} is audited properly" do
-      audit_rule = auditd.file(audit_command)
-      expect(audit_rule).to exist
-      expect(audit_rule.action.uniq).to cmp 'always'
-      expect(audit_rule.list.uniq).to cmp 'exit'
-      expect(audit_rule.fields.flatten).to include('perm=x', 'auid>=1000', 'auid!=-1')
-      expect(audit_rule.key.uniq).to include(input('audit_rule_keynames').merge(input('audit_rule_keynames_overrides'))[audit_command])
-      auditctl_output = command("sudo auditctl -l | grep #{audit_command}").stdout.strip
-      expect(auditctl_output).to match(/-S\s+all\b/)
-    end
+  # execve is audited for setuid (uid!=euid, euid=0) and setgid (gid!=egid, egid=0) privilege escalation.
+  describe 'Syscall execve (setuid/setgid)' do
+    subject { auditd.syscall('execve') }
+    it { should exist }
+    its('action.uniq') { should cmp 'always' }
+    its('list.uniq') { should cmp 'exit' }
+    its('fields.flatten') { should include('uid!=euid', 'euid=0', 'gid!=egid', 'egid=0') }
+    its('key.uniq') { should include('setuid', 'setgid') }
   end
 end

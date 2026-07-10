@@ -40,11 +40,12 @@ or issue the following command:
   tag nist: ['AU-12 a', 'AU-3 a', 'AU-3 (1)', 'AU-12 c', 'MA-4 (1) (a)']
   tag 'host'
 
-  audit_command = '/usr/bin/su'
+  audit_command = '/sbin/pam_timestamp_check'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
+
   describe 'Command' do
     it "#{audit_command} is audited properly" do
       audit_rule = auditd.file(audit_command)

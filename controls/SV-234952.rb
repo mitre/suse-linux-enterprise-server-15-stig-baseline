@@ -42,7 +42,7 @@ or issue the following command:
   tag nist: ['AU-12 a', 'AU-3 a', 'AU-3 (1)', 'AU-12 c', 'MA-4 (1) (a)']
   tag 'host'
 
-  audit_syscalls = ['rename', 'unlink', 'rmdir', 'renameat', 'unlinkat']
+  audit_syscalls = %w[init_module finit_module]
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
     !%w[docker podman kubepods lxc].include?(virtualization.system)

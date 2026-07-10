@@ -29,39 +29,23 @@ The audit daemon must be restarted for the changes to take effect.
   tag nist: ['CM-6 b']
   tag 'host'
 
-  only_if('Control not applicable within a container', impact: 0.0) {
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  if input('storing_core_dumps_required')
-    impact 0.0
-    describe 'N/A' do
-      skip "Profile inputs indicate that this parameter's setting is a documented operational requirement"
+  # A "task,never" rule disables syscall auditing; it must be absent both at runtime and in the static rules.
+  loaded = command('auditctl -l').stdout.lines.grep(/task,never/i).map(&:strip)
+  static = command("grep -rv '^#' /etc/audit/rules.d/ | grep -i 'task,never'").stdout.strip.split("\n").reject(&:empty?)
+
+  describe 'Loaded audit rules (auditctl -l)' do
+    it 'must not disable syscall auditing with a "task,never" rule' do
+      expect(loaded).to be_empty, "Disabling rules loaded:\n\t- #{loaded.join("\n\t- ")}"
     end
-  else
+  end
 
-    parameter = 'kernel.core_pattern'
-    value = '|/bin/false'
-    regexp = /^\s*#{parameter}\s*=\s*#{value}\s*$/
-
-    describe kernel_parameter(parameter) do
-      its('value') { should eq value }
-    end
-
-    search_results = command("/usr/lib/systemd/systemd-sysctl --cat-config | egrep -v '^(#|;)' | grep -F #{parameter}").stdout.strip.split("\n")
-
-    correct_result = search_results.any? { |line| line.match(regexp) }
-    incorrect_results = search_results.map(&:strip).reject { |line| line.match(regexp) }
-
-    describe 'Kernel config files' do
-      it "should configure '#{parameter}'" do
-        expect(correct_result).to eq(true), 'No config file was found that correctly sets this action'
-      end
-      unless incorrect_results.nil?
-        it 'should not have incorrect or conflicting setting(s) in the config files' do
-          expect(incorrect_results).to be_empty, "Incorrect or conflicting setting(s) found:\n\t- #{incorrect_results.join("\n\t- ")}"
-        end
-      end
+  describe 'Static audit rules in /etc/audit/rules.d' do
+    it 'must not statically define a "task,never" rule' do
+      expect(static).to be_empty, "Disabling rules in rules.d:\n\t- #{static.join("\n\t- ")}"
     end
   end
 end
