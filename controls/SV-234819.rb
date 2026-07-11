@@ -57,7 +57,7 @@ Generate an updated "grub.conf" file with the new password using the following c
     it { should exist }
   end
 
-  superusers_account = grubfile.content.match(/set superusers="(?<superusers_account>\w+)"/)
+  superusers_account = grubfile.content.to_s.match(/set superusers="(?<superusers_account>\w+)"/)
 
   describe 'The GRUB superuser' do
     it "should be set in the GRUB config file ('#{grubfile}')" do

@@ -31,7 +31,7 @@ The DOD requirement is 60 days or less (greater than zero, as zero days will loc
 
   value = input('pass_max_days')
 
-  bad_users = users.where { uid >= 1000 }.where { value > 60 or maxdays.negative? }.usernames
+  bad_users = users.where { uid >= 1000 }.where { value > 60 or maxdays.to_i.negative? }.usernames
   in_scope_users = bad_users - input('exempt_home_users')
 
   describe 'Users are not be able' do

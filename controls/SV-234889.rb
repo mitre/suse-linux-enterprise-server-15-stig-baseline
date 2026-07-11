@@ -31,7 +31,7 @@ The DOD requirement is "1" but a greater value is acceptable.'
 
   # TODO: add inputs for a frequecny
 
-  bad_users = users.where { uid >= 1000 }.where { mindays < 1 }.usernames
+  bad_users = users.where { uid >= 1000 }.where { mindays.to_i < 1 }.usernames
   in_scope_users = bad_users - input('exempt_home_users')
 
   describe 'Users should not' do
