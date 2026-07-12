@@ -25,3 +25,10 @@
     suse15cis_level_2: false
     run_audit: false
     setup_audit: false
+    # Rule 3.1.2 (wireless interfaces) is broken when the target is detected as a
+    # container: its prelim wireless-detection block is gated `not
+    # system_is_container` and skips, leaving prelim_wireless_modules a skip-dict,
+    # yet the 3.1.2 guard (a truthy skip-dict) still runs the block and errors on
+    # the missing `.stdout_lines`. Harmless to disable: server VMs have no
+    # wireless, and on CI's real LXD VM the rule's loop is empty anyway.
+    suse15cis_rule_3_1_2: false

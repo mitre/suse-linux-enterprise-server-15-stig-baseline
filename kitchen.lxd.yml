@@ -77,7 +77,21 @@ lifecycle:
         # python311 is in Leap's default OSS repo (no registration); on SLES the
         # SUSEConnect sle-module-python3 step above provides it. /usr/bin/python3
         # stays 3.6; 3.11 lives at /usr/bin/python3.11.
-        sudo zypper --non-interactive install -y bc bind-utils vim git wget gcc libffi-devel libopenssl-devel python311 python311-pip || true
+        # python311-rpm gives Python 3.11 the librpm bindings that Ansible's
+        # package_facts module needs; without it the SUSE15-CIS "Gather the
+        # package facts" task fails ("Could not detect a supported package
+        # manager ... required Python library is not installed") because the play
+        # runs under 3.11, not the system python that ships python3-rpm.
+        # cronie provides cron.service, which CIS rule 2.4.1.1 ("Ensure cron
+        # daemon is enabled and active") enables; the stock image omits it and the
+        # rule hard-fails ("Could not find the requested service cron").
+        #
+        # audit ships /etc/audit/auditd.conf. The SUSE15-CIS role has an ordering
+        # bug: rule 6.2.4.1 (section 6.2) edits auditd.conf before rule 6.3.1.1
+        # (section 6.3) installs the audit package, so on any image without audit
+        # preinstalled 6.2.4.1 hard-fails ("Destination /etc/audit/auditd.conf
+        # does not exist"). Installing it up front fixes the ordering.
+        sudo zypper --non-interactive install -y bc bind-utils vim git wget gcc libffi-devel libopenssl-devel python311 python311-pip python311-rpm cronie audit || true
         echo ""
         echo "+++ Installing a modern ansible-core in a Python 3.11 virtualenv +++"
         # Build the Ansible controller in a dedicated 3.11 venv: deterministic
