@@ -91,7 +91,13 @@ lifecycle:
         # (section 6.3) installs the audit package, so on any image without audit
         # preinstalled 6.2.4.1 hard-fails ("Destination /etc/audit/auditd.conf
         # does not exist"). Installing it up front fixes the ordering.
-        sudo zypper --non-interactive install -y bc bind-utils vim git wget gcc libffi-devel libopenssl-devel python311 python311-pip python311-rpm cronie audit || true
+        # python311-firewall gives Python 3.11 the `firewall` bindings that
+        # Ansible's firewalld module imports; the stock python3-firewall targets
+        # the system 3.6, so CIS rule 4.2.3 ("firewalld loopback traffic") fails
+        # with "Failed to import the required Python library (firewall)". firewalld
+        # itself is installed here too, since python311-firewall does not pull the
+        # daemon in and the role's firewalld tasks need it present.
+        sudo zypper --non-interactive install -y bc bind-utils vim git wget gcc libffi-devel libopenssl-devel python311 python311-pip python311-rpm cronie audit python311-firewall firewalld || true
         echo ""
         echo "+++ Installing a modern ansible-core in a Python 3.11 virtualenv +++"
         # Build the Ansible controller in a dedicated 3.11 venv: deterministic
