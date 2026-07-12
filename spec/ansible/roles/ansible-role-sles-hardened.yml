@@ -32,3 +32,15 @@
     # the missing `.stdout_lines`. Harmless to disable: server VMs have no
     # wireless, and on CI's real LXD VM the rule's loop is empty anyway.
     suse15cis_rule_3_1_2: false
+    # Rule 5.2.4 rewrites NOPASSWD -> PASSWD in sudoers for every account not on this
+    # list, which strips the Kitchen login user's passwordless sudo. InSpec verifies
+    # with sudo over a non-TTY SSH session, so the scan then dies with "Sudo cannot
+    # prompt for password because there is no terminal". The role ships ec2-user and
+    # vagrant here for exactly this reason (automation accounts); "sles" is ours
+    # (LXD_VM_USERNAME in CI, the same default locally). The box therefore keeps one
+    # NOPASSWD entry, which SV-234853 correctly reports as a finding -- a test-harness
+    # artifact, not a profile bug.
+    suse15cis_sudoers_exclude_nopasswd_list:
+      - ec2-user
+      - vagrant
+      - sles
