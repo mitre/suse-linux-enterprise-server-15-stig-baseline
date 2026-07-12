@@ -43,14 +43,8 @@ Restart the "sshd" service for changes to take effect:
       end
     end
   else
-    describe file('/etc/ssh/sshd_config.d/50-redhat.conf') do
-      it { should exist }
-    end
     describe sshd_config do
-      its('Include') { should include '/etc/ssh/sshd_config.d/*.conf' }
-    end
-    describe sshd_config('/etc/ssh/sshd_config.d/50-redhat.conf') do
-      its('Include') { should include '/etc/crypto-policies/back-ends/opensshserver.config' }
+      its('KexAlgorithms') { should cmp 'ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256' }
     end
   end
 end

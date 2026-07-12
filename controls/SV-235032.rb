@@ -36,6 +36,7 @@ PermitUserEnvironment no'
   }
 
   describe sshd_config do
-    its('HostBasedAuthentication') { should cmp 'no' }
+    its('PermitEmptyPasswords') { should cmp 'no' }
+    its('PermitUserEnvironment') { should cmp 'no' }
   end
 end

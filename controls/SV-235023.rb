@@ -33,16 +33,22 @@ If "0" is not the system's default value, add or update the following line in "/
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  parameter = 'net.ipv6.conf.all.accept_redirects'
-  value = 0
-  regexp = /^\s*#{parameter}\s*=\s*#{value}\s*$/
-
-  if input('ipv6_enabled') == false
+  if input('send_redirects')
     impact 0.0
-    describe 'IPv6 is disabled on the system, this requirement is Not Applicable.' do
-      skip 'IPv6 is disabled on the system, this requirement is Not Applicable.'
+    describe 'N/A' do
+      skip "Profile inputs indicate that this parameter's setting is a documented operational requirement"
+    end
+  elsif input('ipv4_enabled') == false
+    impact 0.0
+    describe 'IPv4 is disabled on the system, this requirement is Not Applicable.' do
+      skip 'IPv4 is disabled on the system, this requirement is Not Applicable.'
     end
   else
+
+    parameter = 'net.ipv4.conf.all.send_redirects'
+    value = 0
+    regexp = /^\s*#{parameter}\s*=\s*#{value}\s*$/
+
     describe kernel_parameter(parameter) do
       its('value') { should eq value }
     end

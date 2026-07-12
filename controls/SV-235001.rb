@@ -26,7 +26,7 @@ If a file system found in "/etc/fstab" refers to NFS and it does not have the "n
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  option = 'nodev'
+  option = 'noexec'
   nfs_file_systems = etc_fstab.nfs_file_systems.params
   failing_mounts = nfs_file_systems.reject { |mnt| mnt['mount_options'].include?(option) }
 

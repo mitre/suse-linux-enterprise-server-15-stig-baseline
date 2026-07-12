@@ -28,7 +28,7 @@ If the "audit-audispd-plugins" package is not installed, this is a finding.'
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  describe package('audispd-plugins') do
+  describe package('audit-audispd-plugins') do
     it { should be_installed }
   end
 end

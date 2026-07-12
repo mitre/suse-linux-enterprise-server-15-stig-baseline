@@ -42,16 +42,17 @@ DISPLAYMANAGER_PASSWORD_LESS_LOGIN="no"'
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  custom_conf = '/etc/gdm/custom.conf'
-
   if package('gnome-desktop3').installed?
-    if (f = file(custom_conf)).exist?
-      describe parse_config_file(custom_conf) do
-        its('daemon.AutomaticLoginEnable') { cmp false }
+    displaymanager = parse_config_file('/etc/sysconfig/displaymanager')
+    autologin = displaymanager.params['DISPLAYMANAGER_AUTOLOGIN'].to_s.delete('"')
+    passwordless = displaymanager.params['DISPLAYMANAGER_PASSWORD_LESS_LOGIN'].to_s.delete('"')
+
+    describe 'Unattended or automatic GUI logon' do
+      it 'must not set DISPLAYMANAGER_AUTOLOGIN to a username' do
+        expect(autologin).to be_empty
       end
-    else
-      describe f do
-        it { should exist }
+      it 'must set DISPLAYMANAGER_PASSWORD_LESS_LOGIN to no' do
+        expect(passwordless).to cmp 'no'
       end
     end
   else

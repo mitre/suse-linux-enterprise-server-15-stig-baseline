@@ -37,24 +37,17 @@ Run the following command to configure the SUSE operating system to allow the us
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  if !input('smart_card_enabled')
-    impact 0.0
-    describe "The system is not smartcard enabled thus this control is Not
-    Applicable" do
-      skip "The system is not using Smartcards / PIVs to fulfil the MFA
-      requirement; this control is Not Applicable."
+  if package('gnome-desktop3').installed?
+    output = command('gsettings get org.gnome.desktop.lockdown disable-lock-screen').stdout.strip
+    describe 'The GUI screen lock capability' do
+      subject { output }
+      it { should cmp 'false' }
     end
-  elsif !package('gnome-desktop3').installed?
+  else
     impact 0.0
     describe 'The system does not have GNOME installed' do
       skip "The system does not have GNOME installed, this requirement is Not
       Applicable."
-    end
-  else
-    output = command('gsettings get org.gnome.settings-daemon.peripherals.smartcard removal-action').stdout.strip
-    describe 'Smart card removal should trigger a session lock until reauthentication' do
-      subject { output }
-      it { should cmp "'lock-screen'" }
     end
   end
 end

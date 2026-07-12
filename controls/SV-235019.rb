@@ -29,26 +29,20 @@ If "0" is not the system's default value, add or update the following line in "/
   tag nist: ['CM-6 b']
   tag 'host'
 
-  only_if('This system is acting as a router on the network; this control is Not Applicable', impact: 0.0) {
-    !input('network_router')
+  only_if('Control not applicable within a container', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  if input('send_redirects')
-    impact 0.0
-    describe 'N/A' do
-      skip "Profile inputs indicate that this parameter's setting is a documented operational requirement"
-    end
-  elsif input('ipv4_enabled') == false
+  parameter = 'net.ipv4.conf.default.accept_redirects'
+  value = 0
+  regexp = /^\s*#{parameter}\s*=\s*#{value}\s*$/
+
+  if input('ipv4_enabled') == false
     impact 0.0
     describe 'IPv4 is disabled on the system, this requirement is Not Applicable.' do
       skip 'IPv4 is disabled on the system, this requirement is Not Applicable.'
     end
   else
-
-    parameter = 'net.ipv4.conf.default.send_redirects'
-    value = 0
-    regexp = /^\s*#{parameter}\s*=\s*#{value}\s*$/
-
     describe kernel_parameter(parameter) do
       its('value') { should eq value }
     end

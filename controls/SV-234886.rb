@@ -26,7 +26,17 @@ Edit "/etc/pam.d/common-password" and edit the line containing "pam_unix.so" to 
   tag 'host'
   tag 'container'
 
-  describe login_defs do
-    its('ENCRYPT_METHOD') { should cmp 'SHA512' }
+  pam_unix_line = file('/etc/pam.d/common-password').content.to_s.lines.map(&:strip).reject { |l| l.start_with?('#') }.find { |l| l.include?('pam_unix.so') }
+
+  describe 'The pam_unix.so line in /etc/pam.d/common-password' do
+    it 'should be present and not commented out' do
+      expect(pam_unix_line).not_to be_nil, 'No pam_unix.so line found in /etc/pam.d/common-password'
+    end
+    it 'should have `required` as the second column' do
+      expect(pam_unix_line.to_s.split[1]).to eq('required'), "Second column is '#{pam_unix_line.to_s.split[1]}', expected 'required'"
+    end
+    it 'should contain sha512' do
+      expect(pam_unix_line).to match(/\bsha512\b/), 'pam_unix.so line does not contain sha512'
+    end
   end
 end

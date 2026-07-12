@@ -26,12 +26,14 @@ The DOD requirement is 60 days.'
   tag 'container'
 
   value = input('pass_max_days')
-  setting = input_object('pass_max_days').name.upcase
 
-  describe "/etc/login.defs does not have `#{setting}` configured" do
-    let(:config) { login_defs.read_params[setting] }
-    it "greater than #{value} day" do
-      expect(config).to cmp <= value
+  bad_users = users.where { uid >= 1000 }.where { maxdays.to_i > value }.usernames
+  in_scope_users = bad_users - input('exempt_home_users')
+
+  describe 'Users should not' do
+    it "be able to retain passwords for more than #{value} days" do
+      failure_message = "The following users can retain their password longer than #{value} days: #{in_scope_users.join(', ')}"
+      expect(in_scope_users).to be_empty, failure_message
     end
   end
 end

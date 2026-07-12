@@ -30,23 +30,8 @@ remote_server = [IP ADDRESS]'
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  if input('alternative_logging_method') == ''
-    describe 'rsyslog configuration' do
-      subject {
-        command("grep -i '^$DefaultNetstreamDriver' #{input('logging_conf_files').join(' ')} | awk -F ':' '{ print $2 }'").stdout
-      }
-      it { should match(/\$DefaultNetstreamDriver\s+gtls/) }
-    end
-
-    describe 'rsyslog configuration' do
-      subject {
-        command("grep -i '^$ActionSendStreamDriverMode' #{input('logging_conf_files').join(' ')} | awk -F ':' '{ print $2 }'").stdout
-      }
-      it { should match(/\$ActionSendStreamDriverMode\s+1/) }
-    end
-  else
-    describe 'manual check' do
-      skip 'Manual check required. Ask the administrator to indicate how logging is done for this system.'
-    end
+  describe parse_config_file('/etc/audit/audisp-remote.conf') do
+    its('remote_server') { should_not be_nil }
+    its('remote_server') { should_not cmp '' }
   end
 end

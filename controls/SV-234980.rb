@@ -29,11 +29,11 @@ If a separate file system/partition does not exist for the system audit data pat
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  describe mount('/tmp') do
+  describe mount('/var/log/audit') do
     it { should be_mounted }
   end
 
-  describe etc_fstab.where { mount_point == '/tmp' } do
+  describe etc_fstab.where { mount_point == '/var/log/audit' } do
     it { should exist }
   end
 end

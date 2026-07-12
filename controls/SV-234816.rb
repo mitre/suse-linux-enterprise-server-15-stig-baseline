@@ -40,13 +40,7 @@ Restart the SSH daemon:
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  expected_value = input('approved_crypto_backend')
-
-  setting_check = command('grep include /etc/ipsec.conf /etc/ipsec.d/*.conf').stdout.strip.match?(/^.*:?[^#]include\s*#{expected_value}$/)
-
-  describe 'RHEL9 IPsec config' do
-    it "should include the conf file '#{expected_value}'" do
-      expect(setting_check).to eq(true), "Conf file '#{expected_value}' not included in ipsec config"
-    end
+  describe sshd_config do
+    its('Ciphers') { should cmp 'aes256-ctr,aes192-ctr,aes128-ctr' }
   end
 end

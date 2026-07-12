@@ -31,13 +31,8 @@ The DOD requirement is 60 days or less (greater than zero, as zero days will loc
 
   value = input('pass_max_days')
 
-  bad_users = users.where { uid >= 1000 }.where { value > 60 or maxdays.to_i.negative? }.usernames
-  in_scope_users = bad_users - input('exempt_home_users')
-
-  describe 'Users are not be able' do
-    it "to retain passwords for more then #{value} day(s)" do
-      failure_message = "The following users can update their password more then every #{value} day(s): #{in_scope_users.join(', ')}"
-      expect(in_scope_users).to be_empty, failure_message
-    end
+  describe login_defs do
+    its('PASS_MAX_DAYS') { should cmp <= value }
+    its('PASS_MAX_DAYS') { should cmp > 0 }
   end
 end

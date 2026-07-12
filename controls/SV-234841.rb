@@ -32,13 +32,11 @@ If any directories are found to be group-writable or world-writable, this is a f
   tag 'host'
   tag 'container'
 
-  required_system_account_caveats = input('required_system_accounts').map { |acct| "-group #{acct}" }.join(' ')
+  failing_dirs = command("find -L #{input('system_command_dirs').join(' ')} -perm /022 -type d").stdout.strip
 
-  failing_files = command("find -L #{input('system_command_dirs').join(' ')} ! #{required_system_account_caveats} -exec ls -d {} \\;").stdout.split("\n")
-
-  describe 'System commands' do
-    it 'should be group-owned by root' do
-      expect(failing_files).to be_empty, "Files not group-owned by root:\n\t- #{failing_files.join("\n\t- ")}"
+  describe 'System command directories more permissive than 0755' do
+    it 'should not exist' do
+      expect(failing_dirs).to be_empty, "Group- or world-writable directories:\n\t- #{failing_dirs.split("\n").join("\n\t- ")}"
     end
   end
 end

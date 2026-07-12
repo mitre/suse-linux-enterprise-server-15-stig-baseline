@@ -61,20 +61,28 @@ By using this IS (which includes any device attached to this IS), you consent to
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  banner_file = file('/etc/issue')
+  no_gui = command('ls /usr/share/xsessions/*').stderr.match?(/No such file or directory/)
 
-  describe banner_file do
-    it { should exist }
-  end
+  if no_gui
+    impact 0.0
+    describe 'A GUI desktop is not installed; this control is Not Applicable.' do
+      skip 'A GUI desktop is not installed; this control is Not Applicable.'
+    end
+  else
+    banner_file = file('/etc/gdm/banner')
 
-  if banner_file.exist?
+    describe banner_file do
+      it { should exist }
+    end
 
-    banner = banner_file.content.gsub(/[\r\n\s]/, '')
-    expected_banner = input('banner_message_text_cli').gsub(/[\r\n\s]/, '')
+    if banner_file.exist?
+      banner = banner_file.content.gsub(/[\r\n\s]/, '')
+      expected_banner = input('banner_message_text_gui').gsub(/[\r\n\s]/, '')
 
-    describe 'The CLI Login Banner ' do
-      it 'is set to the standard banner and has the correct text' do
-        expect(banner).to eq(expected_banner), 'Banner does not match expected text'
+      describe 'The GUI Login Banner' do
+        it 'is set to the standard banner and has the correct text' do
+          expect(banner).to eq(expected_banner), 'Banner does not match expected text'
+        end
       end
     end
   end

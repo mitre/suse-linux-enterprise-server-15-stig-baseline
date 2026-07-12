@@ -45,7 +45,7 @@ If "0" is not the system's default value, add or update the following line in "/
     end
   else
 
-    parameter = 'net.ipv4.conf.all.send_redirects'
+    parameter = 'net.ipv4.conf.default.send_redirects'
     value = 0
     regexp = /^\s*#{parameter}\s*=\s*#{value}\s*$/
 

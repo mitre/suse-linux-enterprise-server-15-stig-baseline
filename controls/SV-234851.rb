@@ -46,13 +46,15 @@ Note: Per requirement SLES-15-010418, the "mailx" package must be installed on t
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   end
 
-  if file_integrity_tool == 'aide'
-    describe command('/usr/sbin/aide --check') do
-      its('stdout') { should_not include "Couldn't open file" }
-    end
-  end
-
   describe package(file_integrity_tool) do
     it { should be_installed }
+  end
+
+  cron_search = command("grep -R #{file_integrity_tool} /etc/crontab /etc/cron.daily /etc/cron.weekly /etc/cron.d").stdout.strip
+
+  describe 'A scheduled cron job executing the file integrity tool' do
+    it 'should be present in /etc/crontab or the /etc/cron.{daily,weekly,d} directories' do
+      expect(cron_search).to_not be_empty, "No cron entry executing '#{file_integrity_tool}' was found"
+    end
   end
 end

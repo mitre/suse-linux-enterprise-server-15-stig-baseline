@@ -46,7 +46,31 @@ Set the correct permissions with the following command:
   only_if('This control is Not Applicable to containers', impact: 0.0) {
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
-  describe command('grep "^\s*[^#]" /etc/audit/audit.rules | tail -1') do
-    its('stdout.strip') { should cmp '-e 2' }
+  audit_perm_rules = [
+    ['/var/log/audit', 'root:root', input('audit_log_mode')],
+    ['/var/log/audit/audit.log', 'root:root', input('audit_log_mode')],
+    ['/etc/audit/audit.rules', 'root:root', input('audit_conf_mode')],
+    ['/etc/audit/rules.d/audit.rules', 'root:root', input('audit_conf_mode')]
+  ]
+  permissions_local = file('/etc/permissions.local').content.to_s
+
+  missing = audit_perm_rules.reject do |path, owner, mode|
+    octet = mode.to_s.sub(/\A0/, '')
+    permissions_local.match?(/^\s*#{Regexp.escape(path)}\s+#{Regexp.escape(owner)}\s+0?#{octet}\s*$/)
+  end
+
+  describe file('/etc/permissions.local') do
+    it { should exist }
+  end
+
+  describe 'The audit path entries in /etc/permissions.local' do
+    it 'should each declare the required owner and mode' do
+      failures = missing.map { |path, owner, mode| "#{path} #{owner} #{mode}" }
+      expect(missing).to be_empty, "Missing or incorrect entries:\n\t- #{failures.join("\n\t- ")}"
+    end
+  end
+
+  describe command('chkstat /etc/permissions.local') do
+    its('stdout.strip') { should be_empty }
   end
 end

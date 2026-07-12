@@ -39,8 +39,10 @@ Set the correct permissions with the following command:
   tag 'host'
   tag 'container'
 
-  describe directory('/var/log') do
+  describe file('/var/log/messages') do
     it { should exist }
+    it { should_not be_more_permissive_than(input('log_file_mode')) }
     it { should be_owned_by 'root' }
+    it { should be_grouped_into 'root' }
   end
 end

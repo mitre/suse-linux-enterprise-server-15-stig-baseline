@@ -31,8 +31,11 @@ If any active message labels in the file do not have a line to send log messages
   }
 
   if input('alternative_logging_method') == ''
-    describe command("grep -i 'type=\"omfwd\"' #{input('logging_conf_files').join(' ')}") do
-      its('stdout') { should match(/^.*:\s*#\s*action\(\s*type\s*=\s*"omfwd"/i) }
+    forwarding_lines = command("grep -Ehi '^[[:space:]]*[^#].*(@[[:alnum:]]|@@|type=\"omfwd\")' #{input('logging_conf_files').join(' ')} 2>/dev/null").stdout.strip
+    describe 'An active (uncommented) remote log forwarding entry in the rsyslog configuration' do
+      it 'should exist' do
+        expect(forwarding_lines).to_not be_empty, 'No active remote log forwarding line was found in the rsyslog configuration files'
+      end
     end
   else
     describe 'manual check' do

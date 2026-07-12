@@ -26,21 +26,20 @@ Edit "/etc/pam.d/common-password" and edit the line containing "pam_cracklib.so"
   tag 'host'
   tag 'container'
 
-  setting = 'difok'
   expected_value = input('difok')
+  cracklib_line = file('/etc/pam.d/common-password').content.to_s.lines.map(&:strip).reject { |l| l.start_with?('#') }.find { |l| l.include?('pam_cracklib.so') }
 
-  pattern = /^[^#]*#{setting}\s*=\s*(?<value>\d+)$/
-  setting_check = command("grep #{setting} /etc/security/pwquality.conf /etc/security/pwquality.conf/*.conf").stdout.strip.scan(pattern).flatten
-
-  describe 'Password settings for the root account' do
-    it 'should be set' do
-      expect(setting_check).to_not be_empty, "'#{setting}' not found (or commented out) in conf file(s)"
+  describe 'The pam_cracklib.so line in /etc/pam.d/common-password' do
+    it 'should be present and not commented out' do
+      expect(cracklib_line).not_to be_nil, 'No pam_cracklib.so line found in /etc/pam.d/common-password'
     end
-    it 'should only be set once' do
-      expect(setting_check.length).to eq(1), "'#{setting}' set more than once in conf file(s)"
+    it 'should have `requisite` as the second column' do
+      expect(cracklib_line.to_s.split[1]).to eq('requisite'), "Second column is '#{cracklib_line.to_s.split[1]}', expected 'requisite'"
     end
-    it "should be set to be >= #{expected_value}" do
-      expect(setting_check.first.to_i).to be >= expected_value, "'#{setting}' set to less than '#{expected_value}' in conf file(s)"
+    it "should set difok to #{expected_value} or greater" do
+      value = cracklib_line.to_s[/\bdifok=(\d+)/, 1]
+      expect(value).not_to be_nil, 'pam_cracklib.so line does not contain difok'
+      expect(value.to_i).to be >= expected_value, "difok is set to '#{value}', expected >= #{expected_value}"
     end
   end
 end

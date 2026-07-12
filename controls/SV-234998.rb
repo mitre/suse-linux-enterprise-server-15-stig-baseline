@@ -32,18 +32,24 @@ Re-mount the filesystems.
   }
 
   option = 'nosuid'
-  nfs_file_systems = etc_fstab.nfs_file_systems.params
-  failing_mounts = nfs_file_systems.reject { |mnt| mnt['mount_options'].include?(option) }
+  exempt_home_users = input('exempt_home_users')
+  uid_min = login_defs.read_params['UID_MIN'].to_i
+  uid_min = 1000 if uid_min.zero?
 
-  if nfs_file_systems.empty?
+  home_dirs = passwd.where { uid.to_i >= uid_min && shell !~ /nologin/ && !exempt_home_users.include?(user) }.homes.uniq
+  home_mounts = home_dirs.map { |dir| command("findmnt -nkT #{dir} -o TARGET").stdout.strip }.reject(&:empty?).uniq
+  applicable_mounts = home_mounts.reject { |mnt| mnt == '/' }
+
+  if applicable_mounts.empty?
     impact 0.0
     describe 'N/A' do
-      skip 'No NFS mounts are configured'
+      skip 'User home directories are not on a separate file system (mounted under "/")'
     end
   else
-    describe 'Any mounted Network File System (NFS)' do
-      it "should have '#{option}' set" do
-        expect(failing_mounts).to be_empty, "NFS without '#{option}' set:\n\t- #{failing_mounts.join("\n\t- ")}"
+    failing_mounts = applicable_mounts.reject { |mnt| mount(mnt).options.include?(option) }
+    describe 'File systems containing user home directories' do
+      it "should be mounted with '#{option}' set" do
+        expect(failing_mounts).to be_empty, "Home directory file systems without '#{option}' set:\n\t- #{failing_mounts.join("\n\t- ")}"
       end
     end
   end

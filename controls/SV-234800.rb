@@ -44,26 +44,14 @@ If the system requires Long-Term Service Pack Support (LTSS), obtain the correct
 
   release = os.release
 
-  # Note that versions 9.0 and 9.2 of RHEL9 are within the EUS window at
-  # time of writing.
-
-  # 9.1 is not a EUS-supported release and is no longer officially supported
-  # by Red Hat. The date given for the expiration for 9.1 is based on the
-  # RHEL9 Planning Guide diagram found on Red Hat's Life Cycle page:
-  # https://access.redhat.com/support/policy/updates/errata/#Life_Cycle_Dates
-
   EOMS_DATE = {
-    /^9\.0/ => 'May 31, 2024',
-    /^9\.1/ => 'April 1, 2023',
-    /^9\.2/ => 'May 31, 2025',
-    /^9\.3/ => 'April 30, 2024',
-    /^9\.4/ => 'May 31, 2026',
-    /^9\.5/ => 'April 30, 2025',
-    /^9\.6/ => 'May 31, 2027',
-    /^9\.7/ => 'April 30, 2026',
-    /^9\.8/ => 'May 31, 2028',
-    /^9\.9/ => 'April 30, 2027',
-    /^9\.10/ => 'May 31, 2032'
+    /^15\.1/ => 'January 31, 2024',
+    /^15\.2/ => 'December 31, 2024',
+    /^15\.3/ => 'December 31, 2025',
+    /^15\.4/ => 'December 31, 2026',
+    /^15\.5/ => 'December 31, 2027',
+    /^15\.6/ => 'December 31, 2028',
+    /^15\.7/ => 'July 31, 2034'
   }.find { |k, _v| k.match(release) }&.last
 
   describe "The release \"#{release}\"" do

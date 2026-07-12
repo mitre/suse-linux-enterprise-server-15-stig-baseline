@@ -31,4 +31,12 @@ If any uncommented lines containing "!authenticate", or "NOPASSWD" are returned 
   describe sudoers(input('sudoers_config_files')) do
     its('settings.Defaults') { should_not include '!authenticate' }
   end
+
+  nopasswd_lines = command('grep -rhi nopasswd /etc/sudoers /etc/sudoers.d 2>/dev/null').stdout.lines.map(&:strip).reject { |l| l.empty? || l.start_with?('#') }
+
+  describe 'The sudoers configuration' do
+    it 'should not contain any uncommented NOPASSWD entries' do
+      expect(nopasswd_lines).to be_empty, "Uncommented NOPASSWD entries found:\n\t- #{nopasswd_lines.join("\n\t- ")}"
+    end
+  end
 end

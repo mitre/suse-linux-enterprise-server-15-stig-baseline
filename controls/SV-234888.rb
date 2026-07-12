@@ -29,16 +29,18 @@ SHA_CRYPT_MIN_ROUNDS 100000'
   tag 'host'
   tag 'container'
 
-  pam_auth_files = input('pam_auth_files')
+  min_rounds = login_defs.read_params['SHA_CRYPT_MIN_ROUNDS']
+  max_rounds = login_defs.read_params['SHA_CRYPT_MAX_ROUNDS']
+  configured_rounds = [min_rounds, max_rounds].compact
+  required_rounds = input('password_hash_rounds')
 
-  if input('pam_config_included')
-    impact 0.0
-    describe 'N/A' do
-      skip 'The required PAM configuration is included or substacked from system-auth; this control is Not Applicable'
+  describe 'The SHA_CRYPT rounds configuration in /etc/login.defs' do
+    it 'should set SHA_CRYPT_MIN_ROUNDS and/or SHA_CRYPT_MAX_ROUNDS' do
+      expect(configured_rounds).not_to be_empty, 'Neither SHA_CRYPT_MIN_ROUNDS nor SHA_CRYPT_MAX_ROUNDS is set in /etc/login.defs'
     end
-  else
-    describe pam(pam_auth_files['system-auth']) do
-      its('lines') { should match_pam_rule('password sufficient pam_unix.so sha512') }
+    it "should have a highest configured rounds value of at least #{required_rounds}" do
+      highest = configured_rounds.map(&:to_i).max || 0
+      expect(highest).to be >= required_rounds, "The highest configured SHA_CRYPT rounds value is '#{highest}', expected >= #{required_rounds}"
     end
   end
 end

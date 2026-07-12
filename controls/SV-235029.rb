@@ -40,7 +40,7 @@ If any files on the system do not have an assigned group, this is a finding.'
       failing_files += command("find / -xdev -xautofs -fstype #{fs} -nogroup").stdout.strip.split("\n")
     end
 
-    describe 'All files on RHEL 9' do
+    describe 'All local files and directories' do
       it 'should have a group' do
         expect(failing_files).to be_empty, "Files with no group:\n\t- #{failing_files.join("\n\t- ")}"
       end

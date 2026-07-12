@@ -40,9 +40,7 @@ Reload the daemon for this change to take effect:
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   end
 
-  grubby = command('grubby --info=ALL').stdout
-
-  describe parse_config(grubby) do
-    its('args') { should_not include 'systemd.confirm_spawn' }
+  describe command('systemd-analyze cat-config systemd/system.conf') do
+    its('stdout') { should match(/^\s*CtrlAltDelBurstAction\s*=\s*none/) }
   end
 end

@@ -31,18 +31,7 @@ blacklist usb-storage'
     !%w[docker podman kubepods lxc].include?(virtualization.system) || !virtualization.role.eql?('guest')
   }
 
-  peripherals_package = input('peripherals_package')
-
-  if peripherals_package == 'usbguard'
-    describe command('usbguard list-rules') do
-      its('stdout') { should_not be_empty }
-      its('exit_status') { should eq 0 }
-    end
-  else
-    describe 'Non-standard package' do
-      it 'is handling peripherals' do
-        expect(peripherals_package).to exist
-      end
-    end
+  describe kernel_module('usb-storage') do
+    it { should be_disabled }
   end
 end

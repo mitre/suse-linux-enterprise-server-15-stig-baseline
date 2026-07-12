@@ -92,7 +92,18 @@ inputs:
     type: String
     value: '0640'
 
-  # (unused — no controls reference this input)
+  - name: audit_log_mode
+    description: The audit log directory and audit.log should be equal or less permissive than this octet
+    type: String
+    value: '0600'
+
+  - name: network_failure_actions
+    description: Permitted values for network_failure_action in /etc/audit/audisp-remote.conf. Defaults to all three STIG-acceptable actions; narrow to a single value to require a specific one.
+    type: Array
+    value:
+      - syslog
+      - single
+      - halt
   - name: audit_tool_mode
     description: All audit config tools on the filesystem should be equal or less permissive than this octet
     type: String
@@ -547,6 +558,11 @@ inputs:
     description: The expected maximum delay in seconds before the system will lock the session
     type: Numeric
     value: 600
+
+  - name: graphical_session_lock_delay
+    description: Maximum GUI idle-delay in seconds before the graphical session locks (DoD STIG maximum 900)
+    type: Numeric
+    value: 900
 
   # (unused — no controls reference this input)
   - name: log_directory
@@ -1067,11 +1083,9 @@ inputs:
 
   # (unused — no controls reference this input)
   - name: password_hash_rounds
-    description: Number of rounds for hashing passwords
+    description: Minimum SHA_CRYPT rounds for password hashing in /etc/login.defs (DoD STIG minimum 100000)
     type: Numeric
-    value: 10000
-
-  # (unused — no controls reference this input)
+    value: 100000
   - name: expected_panic_value
     description: Expected value for the audit.rules '-f' flag
     type: Numeric

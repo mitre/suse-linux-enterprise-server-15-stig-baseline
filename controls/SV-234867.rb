@@ -50,21 +50,27 @@ Note: Manual changes to the listed files may be overwritten by the "pam-config" 
     end
   else
 
-    describe selinux do
-      it { should be_installed }
-      it { should be_enforcing }
-      it { should_not be_disabled }
+    auth_line = file('/etc/pam.d/common-auth').content.to_s.lines.map(&:strip).reject { |l| l.start_with?('#') }.find { |l| l.include?('pam_tally2.so') }
+    account_line = file('/etc/pam.d/common-account').content.to_s.lines.map(&:strip).reject { |l| l.start_with?('#') }.find { |l| l.include?('pam_tally2.so') }
+
+    describe 'The pam_tally2.so line in /etc/pam.d/common-auth' do
+      it 'should be present' do
+        expect(auth_line).not_to be_nil, 'No pam_tally2.so line found in /etc/pam.d/common-auth'
+      end
+      it 'should include onerr=fail' do
+        expect(auth_line).to match(/onerr=fail/), 'pam_tally2.so line is missing onerr=fail'
+      end
+      it 'should set deny to 1, 2, or 3' do
+        deny = auth_line.to_s[/\bdeny=(\d+)/, 1]
+        expect(deny).not_to be_nil, 'pam_tally2.so line is missing deny='
+        expect(deny.to_i).to be_between(1, 3), "deny is set to '#{deny}', which is outside the range 1-3"
+      end
     end
 
-    describe parse_config_file('/etc/security/faillock.conf') do
-      its('dir') { should cmp input('non_default_tally_dir') }
-    end
-
-    faillock_tally = input('faillock_tally')
-
-    describe "The selected non-default tally directory for PAM: #{input('non_default_tally_dir')}" do
-      subject { file(input('non_default_tally_dir')) }
-      its('selinux_label') { should match(/#{faillock_tally}/) }
+    describe 'The /etc/pam.d/common-account file' do
+      it 'should reference pam_tally2.so' do
+        expect(account_line).not_to be_nil, 'No pam_tally2.so line found in /etc/pam.d/common-account'
+      end
     end
   end
 end

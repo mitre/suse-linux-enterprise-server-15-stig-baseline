@@ -42,19 +42,16 @@ Additional information on the configuration of multifactor authentication on the
   }
 
   if input('alternate_mfa_method').to_s.empty?
-    sssd_conf_files = input('sssd_conf_files')
-    sssd_conf_contents = ini({ command: "cat #{input('sssd_conf_files').join(' ')}" })
-    sssd_certificate_verification = input('sssd_certificate_verification')
+    pkcs11_conf = '/etc/pam_pkcs11/pam_pkcs11.conf'
+    cert_policy_lines = file(pkcs11_conf).content.to_s.lines.map(&:strip).reject { |l| l.start_with?('#') }.select { |l| l.include?('cert_policy') }
 
-    describe 'SSSD' do
-      it 'should be installed and enabled' do
-        expect(service('sssd')).to be_installed.and be_enabled
-        expect(sssd_conf_contents.params).to_not be_empty, "SSSD configuration files not found or have no content; files checked:\n\t- #{sssd_conf_files.join("\n\t- ")}"
+    describe "cert_policy lines in #{pkcs11_conf}" do
+      it 'should be present' do
+        expect(cert_policy_lines).not_to be_empty, "No cert_policy lines found in #{pkcs11_conf}"
       end
-      if sssd_conf_contents.params.nil?
-        it "should configure certificate_verification to be '#{sssd_certificate_verification}'" do
-          expect(sssd_conf_contents.sssd.certificate_verification).to eq(sssd_certificate_verification)
-        end
+      it 'should all include ocsp_on' do
+        failing = cert_policy_lines.reject { |l| l.include?('ocsp_on') }
+        expect(failing).to be_empty, "cert_policy lines missing 'ocsp_on':\n\t- #{failing.join("\n\t- ")}"
       end
     end
   else

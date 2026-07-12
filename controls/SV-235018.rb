@@ -33,7 +33,7 @@ If "0" is not the system's default value, add or update the following line in "/
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  parameter = 'net.ipv4.conf.default.accept_redirects'
+  parameter = 'net.ipv4.conf.all.accept_redirects'
   value = 0
   regexp = /^\s*#{parameter}\s*=\s*#{value}\s*$/
 

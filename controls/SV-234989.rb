@@ -68,8 +68,11 @@ logout=''
       skip 'A GUI desktop is not installed; this control is Not Applicable.'
     end
   else
-    describe command('gsettings get org.gnome.login-screen disable-user-list') do
-      its('stdout.strip') { should cmp 'true' }
+    describe command('gsettings get org.gnome.settings-daemon.plugins.media-keys logout') do
+      its('stdout.strip') { should cmp "''" }
+    end
+    describe command('gsettings writable org.gnome.settings-daemon.plugins.media-keys logout') do
+      its('stdout.strip') { should cmp 'false' }
     end
   end
 end

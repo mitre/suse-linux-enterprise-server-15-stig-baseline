@@ -27,13 +27,13 @@ Change the minimum time period between password changes for each [USER] account 
   tag 'host'
   tag 'container'
 
-  value = input('pass_min_days')
-  setting = input_object('pass_min_days').name.upcase
+  bad_users = users.where { uid >= 1000 }.where { mindays.to_i < 1 }.usernames
+  in_scope_users = bad_users - input('exempt_home_users')
 
-  describe "/etc/login.defs does not have `#{setting}` configured" do
-    let(:config) { login_defs.read_params[setting] }
-    it "greater than #{value} day" do
-      expect(config).to cmp <= value
+  describe 'Users should not' do
+    it 'be able to change their password more than once in a 24 hour period' do
+      failure_message = "The following users can update their password more than once a day: #{in_scope_users.join(', ')}"
+      expect(in_scope_users).to be_empty, failure_message
     end
   end
 end

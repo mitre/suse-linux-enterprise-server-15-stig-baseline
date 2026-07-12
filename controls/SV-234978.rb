@@ -32,13 +32,7 @@ network_failure_action = syslog'
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  if input('alternative_logging_method') == ''
-    describe package('rsyslog') do
-      it { should be_installed }
-    end
-  else
-    describe 'manual check' do
-      skip 'Manual check required. Ask the administrator to indicate how logging is done for this system.'
-    end
+  describe parse_config_file('/etc/audit/audisp-remote.conf') do
+    its('network_failure_action') { should be_in input('network_failure_actions') }
   end
 end

@@ -47,7 +47,7 @@ If "0" is not the system's default value, add or update the following line in "/
     end
   else
 
-    parameter = 'net.ipv4.conf.all.forwarding'
+    parameter = 'net.ipv4.ip_forward'
     value = 0
     regexp = /^\s*#{parameter}\s*=\s*#{value}\s*$/
 

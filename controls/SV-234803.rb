@@ -78,10 +78,10 @@ By using this IS (which includes any device attached to this IS), you consent to
     !%w[docker podman kubepods lxc].include?(virtualization.system) && command('rpm -q gdm').exit_status.zero?
   end
 
-  banner = command('gsettings get org.gnome.login-screen banner-message-text').stdout.strip.gsub(/\\n|'|"|\s+/, '')
-  expected_banner = input('banner_message_text_gui').gsub(/\s+/, '')
+  banner = file('/etc/issue').content.gsub(/[\r\n\s]/, '')
+  expected_banner = input('banner_message_text_ral').gsub(/[\r\n\s]/, '')
 
-  describe 'The GUI Login Banner' do
+  describe 'The console login banner' do
     it 'is set to the standard banner and has the correct text' do
       expect(banner).to eq(expected_banner), 'Banner does not match expected text'
     end

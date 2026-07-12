@@ -31,23 +31,8 @@ gpgcheck = on'
   tag 'host'
   tag 'container'
 
-  repo_def_files = command('ls /etc/yum.repos.d/*.repo').stdout.split("\n")
-
-  if repo_def_files.empty?
-    describe 'No repos found in /etc/yum.repos.d/*.repo' do
-      skip 'No repos found in /etc/yum.repos.d/*.repo'
-    end
-  else
-    # pull out all repo definitions from all files into one big hash
-    repos = repo_def_files.map { |file| parse_config_file(file).params }.inject(&:merge)
-
-    # check big hash for repos that fail the test condition
-    failing_repos = repos.keys.reject { |repo_name| repos[repo_name]['gpgcheck'] == '1' }
-
-    describe 'All repositories' do
-      it 'should be configured to verify digital signatures' do
-        expect(failing_repos).to be_empty, "Misconfigured repositories:\n\t- #{failing_repos.join("\n\t- ")}"
-      end
-    end
+  describe 'The zypper gpgcheck setting in /etc/zypp/zypp.conf' do
+    subject { parse_config_file('/etc/zypp/zypp.conf').params['gpgcheck'] }
+    it { should_not cmp 'off' }
   end
 end

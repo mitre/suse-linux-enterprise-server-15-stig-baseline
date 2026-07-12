@@ -23,11 +23,11 @@ If any output is returned, this is a finding.)
   tag 'host'
   tag 'container'
 
-  failing_files = command("find -L #{input('system_libraries').join(' ')} -type f -name '*.so*' -perm /0022 -exec ls -d {} \\;").stdout.split("\n")
+  failing_files = command("find -L #{input('system_libraries').join(' ')} -type f -name '*.so*' ! -user root").stdout.strip
 
-  describe 'System libraries' do
-    it 'should be owned by root' do
-      expect(failing_files).to be_empty, "Files not owned by root:\n\t- #{failing_files.join("\n\t- ")}"
+  describe 'System library files not owned by root' do
+    it 'should not exist' do
+      expect(failing_files).to be_empty, "Files not owned by root:\n\t- #{failing_files.split("\n").join("\n\t- ")}"
     end
   end
 end

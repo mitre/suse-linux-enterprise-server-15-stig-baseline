@@ -36,13 +36,8 @@ If the service is not active or not enabled, this is a finding.'
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  grub_stdout = command('grubby --info=ALL').stdout
-  setting = /audit\s*=\s*1/
-
-  describe 'GRUB config' do
-    it 'should enable page poisoning' do
-      expect(parse_config(grub_stdout)['args']).to match(setting), 'Current GRUB configuration does not disable this setting'
-      expect(parse_config_file('/etc/default/grub')['GRUB_CMDLINE_LINUX']).to match(setting), 'Setting not configured to persist between kernel updates'
-    end
+  describe service('auditd') do
+    it { should be_enabled }
+    it { should be_running }
   end
 end

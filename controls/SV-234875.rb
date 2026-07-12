@@ -31,13 +31,16 @@ Run the following command to disable the interactive shell for a specific non-in
   tag 'host'
   tag 'container'
 
-  if input('quagga_required')
-    describe package('quagga') do
-      it { should be_installed }
-    end
-  else
-    describe package('quagga') do
-      it { should_not be_installed }
+  allowed_shells = ['/sbin/nologin', '/bin/false']
+  system_accounts = input('known_system_accounts') - ['root']
+
+  failing_accounts = system_accounts.select { |acct|
+    user(acct).exists? && !allowed_shells.include?(user(acct).shell)
+  }
+
+  describe 'Non-interactive system accounts' do
+    it 'should not have an interactive shell assigned' do
+      expect(failing_accounts).to be_empty, "Accounts with an interactive shell assigned:\n\t- #{failing_accounts.join("\n\t- ")}"
     end
   end
 end

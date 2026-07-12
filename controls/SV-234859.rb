@@ -31,7 +31,7 @@ http://csrc.nist.gov/groups/STM/cmvp/documents/140-1/140sp/140sp2435.pdf'
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  describe package('crypto-policies') do
-    it { should be_installed }
+  describe kernel_parameter('crypto.fips_enabled') do
+    its('value') { should cmp 1 }
   end
 end

@@ -53,9 +53,13 @@ Done.'
   tag 'host'
   tag 'container'
 
-  mail_package = input('mail_package')
+  file_integrity_tool = input('file_integrity_tool')
 
-  describe package(mail_package) do
+  describe package(file_integrity_tool) do
     it { should be_installed }
+  end
+
+  describe file('/var/lib/aide/aide.db') do
+    it { should exist }
   end
 end

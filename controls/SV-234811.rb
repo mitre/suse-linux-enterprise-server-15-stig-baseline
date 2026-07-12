@@ -34,15 +34,7 @@ If the command outputs "no matching items found", this is a finding.'
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  if package('gnome-desktop3').installed?
-    describe command('gsettings get org.gnome.desktop.screensaver lock-enabled') do
-      its('stdout.strip') { should cmp 'true' }
-    end
-  else
-    impact 0.0
-    describe 'The system does not have GNOME installed' do
-      skip "The system does not have GNOME installed, this requirement is Not
-        Applicable."
-    end
+  describe package('kbd') do
+    it { should be_installed }
   end
 end

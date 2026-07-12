@@ -26,21 +26,17 @@ Edit "/etc/pam.d/common-password" and edit the line containing "pam_cracklib.so"
   tag 'host'
   tag 'container'
 
-  describe 'pwquality.conf:' do
-    let(:config) { parse_config_file('/etc/security/pwquality.conf', multiple_values: true) }
-    let(:setting) { 'ucredit' }
-    let(:value) { Array(config.params[setting]) }
+  cracklib_line = file('/etc/pam.d/common-password').content.to_s.lines.map(&:strip).reject { |l| l.start_with?('#') }.find { |l| l.include?('pam_cracklib.so') }
 
-    it 'has `ucredit` set' do
-      expect(value).not_to be_empty, 'ucredit is not set in pwquality.conf'
+  describe 'The pam_cracklib.so line in /etc/pam.d/common-password' do
+    it 'should be present and not commented out' do
+      expect(cracklib_line).not_to be_nil, 'No pam_cracklib.so line found in /etc/pam.d/common-password'
     end
-
-    it 'only sets `ucredit` once' do
-      expect(value.length).to eq(1), 'ucredit is commented or set more than once in pwquality.conf'
+    it 'should have `requisite` as the second column' do
+      expect(cracklib_line.to_s.split[1]).to eq('requisite'), "Second column is '#{cracklib_line.to_s.split[1]}', expected 'requisite'"
     end
-
-    it 'does not set `ucredit` to a positive value' do
-      expect(value.first.to_i).to cmp < 0, 'ucredit is not set to a negative value in pwquality.conf'
+    it 'should contain ucredit=-1' do
+      expect(cracklib_line).to match(/\bucredit=-1\b/), 'pam_cracklib.so line does not contain ucredit=-1'
     end
   end
 end

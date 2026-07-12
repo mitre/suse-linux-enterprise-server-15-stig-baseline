@@ -40,16 +40,12 @@ Set the proper permissions for the "/etc/profile.d/autologout.sh" file with the 
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  if package('gnome-desktop3').installed?
-    output = command('gsettings writable org.gnome.desktop.screensaver lock-delay').stdout.strip
-    describe 'Users should not be able to override GUI settings' do
-      subject { output }
-      it { should cmp 'false' }
-    end
-  else
-    impact 0.0
-    describe 'The GNOME desktop is not installed' do
-      skip 'The GNOME desktop is not installed; this control is Not Applicable.'
-    end
+  timeout = input('system_inactivity_timeout')
+
+  describe file('/etc/profile.d/autologout.sh') do
+    it { should exist }
+    its('content') { should match(/^TMOUT=#{timeout}$/) }
+    its('content') { should match(/^readonly TMOUT$/) }
+    its('content') { should match(/^export TMOUT$/) }
   end
 end

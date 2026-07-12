@@ -63,10 +63,9 @@ Save the file "/etc/gdm/Xsession".'
       skip 'A GUI desktop is not installed; this control is Not Applicable.'
     end
   else
-    output = command('gsettings get org.gnome.login-screen banner-message-enable').stdout.strip
-    describe 'A banner message should be displayed on the login screen' do
-      subject { output }
-      it { should cmp 'true' }
+    describe file('/etc/gdm/Xsession') do
+      it { should exist }
+      its('content') { should match(%r{#!/bin/sh\s+if ! zenity --text-info.*--checkbox="Accept\."}m) }
     end
   end
 end

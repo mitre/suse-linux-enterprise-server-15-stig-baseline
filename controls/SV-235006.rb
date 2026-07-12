@@ -25,16 +25,7 @@ Additional information on the configuration of multifactor authentication on the
   tag 'host'
   tag 'container'
 
-  if package('postfix').installed?
-    describe command('postconf -n smtpd_client_restrictions') do
-      its('stdout.strip') {
-        should match(/^smtpd_client_restrictions\s+=\s+(permit_mynetworks|reject)($|(,\s*(permit_mynetworks|reject)\s*$))/i)
-      }
-    end
-  else
-    impact 0.0
-    describe 'The `postfix` package is not installed' do
-      skip 'The `postfix` package is not installed; this control is Not Applicable'
-    end
+  describe command('find /etc/pam.d/ -type l -iname "common-*"') do
+    its('stdout.strip') { should be_empty }
   end
 end

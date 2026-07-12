@@ -46,7 +46,11 @@ Generate an updated "grub.conf" file with the new password using the following c
   tag 'host'
   tag 'container'
 
-  describe ini('/usr/lib/systemd/system/rescue.service') do
-    its('Service.ExecStart') { should match %r{^-/usr/lib/systemd/systemd-sulogin-shell rescue$} }
+  only_if('This control applies only to UEFI systems', impact: 0.0) {
+    file('/sys/firmware/efi').directory?
+  }
+
+  describe file('/boot/efi/EFI/sles/grub.cfg') do
+    its('content') { should match(/^\s*password_pbkdf2\s+\S+\s+grub\.pbkdf2\.sha512\./) }
   end
 end

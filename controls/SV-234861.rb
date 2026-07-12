@@ -35,13 +35,27 @@ If "1" is not the system's default value, add or update the following line in "/
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  grep_output = command("grep ^flags /proc/cpuinfo | grep -Ev '([^[:alnum:]])(nx)([^[:alnum:]]|$)'").stdout.strip
-  grubby_output = command("grubby --info=ALL | grep args | grep -E '([^[:alnum:]])(noexec)([^[:alnum:]])'").stdout.strip
+  parameter = 'kernel.kptr_restrict'
+  value = 1
+  regexp = /^\s*#{parameter}\s*=\s*#{value}\s*$/
 
-  describe 'ExecShield' do
-    it 'is enabled on 64-bit RHEL 9 systems' do
-      expect(grep_output).to be_empty
-      expect(grubby_output).to be_empty
+  describe kernel_parameter(parameter) do
+    its('value') { should eq value }
+  end
+
+  search_results = command("/usr/lib/systemd/systemd-sysctl --cat-config | egrep -v '^(#|;)' | grep -F #{parameter}").stdout.strip.split("\n")
+
+  correct_result = search_results.any? { |line| line.match(regexp) }
+  incorrect_results = search_results.map(&:strip).reject { |line| line.match(regexp) }
+
+  describe 'Kernel config files' do
+    it "should configure '#{parameter}'" do
+      expect(correct_result).to eq(true), 'No config file was found that correctly sets this action'
+    end
+    unless incorrect_results.nil?
+      it 'should not have incorrect or conflicting setting(s) in the config files' do
+        expect(incorrect_results).to be_empty, "Incorrect or conflicting setting(s) found:\n\t- #{incorrect_results.join("\n\t- ")}"
+      end
     end
   end
 end
