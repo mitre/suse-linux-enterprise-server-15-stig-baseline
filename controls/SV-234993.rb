@@ -33,7 +33,7 @@ Note: The example will be for the user "doduser".
   }
 
   exempt_home_users = input('exempt_home_users')
-  expected_mode = input('expected_modes')['home_dirs']
+  expected_mode = input('file_modes')['max'][:home_dirs]
   uid_min = login_defs.read_params['UID_MIN'].to_i
   uid_min = 1000 if uid_min.nil?
 

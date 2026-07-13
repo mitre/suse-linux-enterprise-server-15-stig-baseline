@@ -46,12 +46,13 @@ Set the correct permissions with the following command:
   only_if('This control is Not Applicable to containers', impact: 0.0) {
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
+  exact_modes = input('file_modes')['exact']
   audit_perm_rules = [
-    ['/var/log/audit', 'root:root', input('audit_log_mode')],
-    ['/var/log/audit/audit.log', 'root:root', input('audit_log_mode')],
-    ['/etc/audit/audit.rules', 'root:root', input('audit_conf_mode')],
-    ['/etc/audit/rules.d/audit.rules', 'root:root', input('audit_conf_mode')]
-  ]
+    '/var/log/audit',
+    '/var/log/audit/audit.log',
+    '/etc/audit/audit.rules',
+    '/etc/audit/rules.d/audit.rules'
+  ].map { |path| [path, 'root:root', exact_modes[path.to_sym]] }
   permissions_local = file('/etc/permissions.local').content.to_s
 
   missing = audit_perm_rules.reject do |path, owner, mode|

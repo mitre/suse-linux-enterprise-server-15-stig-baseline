@@ -29,7 +29,7 @@ Note: The btmp, wtmp, and lastlog files are excluded. Refer to the Discussion fo
   tag cci: ['CCI-001312']
   tag nist: ['SI-11 a']
 
-  log_file_mode = input('log_file_mode')
+  log_file_mode = input('file_modes')['max'][:log_files]
   # find's -perm /MASK matches any disallowed bit; the mask is the complement of the max-allowed mode.
   perm_mask = format('%o', 0o777 ^ log_file_mode.to_i(8))
   too_permissive = command("find /var/log -perm /#{perm_mask} ! -name '*[bw]tmp' ! -name '*lastlog' -type f -exec stat -c '%n %a' {} +").stdout.strip.split("\n").reject(&:empty?)

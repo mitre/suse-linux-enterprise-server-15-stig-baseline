@@ -28,7 +28,7 @@ If any of the aforementioned directories are found to be group-writable or world
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  mode_for_libs = input('mode_for_libs')
+  mode_for_libs = input('file_modes')['max'][:system_libs]
 
   overly_permissive_libs = input('system_libraries').select { |lib|
     file(lib).more_permissive_than?(mode_for_libs)

@@ -30,9 +30,9 @@ UMASK 077'
   tag 'host'
   tag 'container'
 
-  modes_for_shells = input('modes_for_shells')
+  umask_modes = input('file_modes')['umask']
 
   describe login_defs do
-    its('UMASK') { should cmp modes_for_shells['default_umask'] }
+    its('UMASK') { should cmp umask_modes[:default] }
   end
 end

@@ -41,7 +41,7 @@ Change the mode of public host key files under "/etc/ssh" to "0644" with the fol
 
   ssh_host_key_dirs = input('ssh_host_key_dirs').join(' ')
   pub_keys = command("find #{ssh_host_key_dirs} -xdev -name '*.pub'").stdout.split("\n")
-  mode = input('ssh_pub_key_mode')
+  mode = input('file_modes')['max'][:ssh_pub_key]
   failing_keys = pub_keys.select { |key| file(key).more_permissive_than?(mode) }
 
   describe 'All SSH public keys on the filesystem' do

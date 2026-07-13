@@ -42,7 +42,7 @@ Note: The example will be for the doduser user, who has a home directory of "/ho
   ifiles = command("find #{homedirs.join(' ')} #{alternate_ini_file_dirs.join(' ')} -xdev -maxdepth 1 -name '.*' -type f -print0").stdout.split("\0")
 
   exempt_ini_files = input('exempt_ini_files')
-  expected_mode = input('initialization_file_mode')
+  expected_mode = input('file_modes')['max'][:init_files]
   failing_files = ifiles.select { |ifile| !exempt_ini_files.include?(ifile) && file(ifile).more_permissive_than?(expected_mode) }
 
   describe 'All RHEL 9 local initialization files' do
