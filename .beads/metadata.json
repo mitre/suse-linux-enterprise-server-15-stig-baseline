@@ -1,7 +1,0 @@
-{
-  "database": "dolt",
-  "backend": "dolt",
-  "dolt_mode": "embedded",
-  "dolt_database": "suse_linux_enterprise_server_15_stig_baseline",
-  "project_id": "40f1ef2d-a1c8-43c2-b20b-f85ef502b61a"
-}

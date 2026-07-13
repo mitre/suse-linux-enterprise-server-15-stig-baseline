@@ -27,3 +27,7 @@ cloud-init.yaml
 .dolt/
 *.db
 .beads-credential-key
+
+# Beads issue tracker: local Dolt DB + refs/dolt/data on the remote.
+# Nothing under .beads needs to be tracked; keep it out of the diff.
+.beads/
