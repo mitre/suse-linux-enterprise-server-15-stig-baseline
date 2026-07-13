@@ -33,7 +33,7 @@ If any world-writable directories are not owned by root, sys, bin, or an applica
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  allowed_groups = %w[root sys bin]
+  allowed_groups = %w[root sys bin] + input('application_groups')
   ww_dirs = command('find / -perm -002 -type d 2>/dev/null').stdout.split("\n")
   failing_dirs = ww_dirs.reject { |dir| allowed_groups.include?(file(dir).group) }
 

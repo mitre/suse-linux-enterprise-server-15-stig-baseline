@@ -699,6 +699,16 @@ inputs:
     value:
       - root
 
+  # SV-235002
+  - name: application_groups
+    description: >-
+      Application groups documented as legitimate group owners of a world-writable
+      directory. The STIG permits root, sys, and bin plus "an application group
+      associated with the directory"; list those groups here. Empty by default, so
+      only root/sys/bin are accepted until a site documents otherwise.
+    type: Array
+    value: []
+
   # (unused — no controls reference this input)
   - name: use_fapolicyd
     description: Whether to use fapolicyd, similar to SELinux whitelisting
