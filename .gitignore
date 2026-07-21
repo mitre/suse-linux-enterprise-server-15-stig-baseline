@@ -8,7 +8,6 @@ kitchen.local.yml
 spec/results/**
 vendor/**
 inspec.lock
-Gemfile.lock
 
 # Downloaded CI VM images / scratch
 *.qcow2

@@ -18,7 +18,11 @@ gem 'pry-byebug'
 gem 'rake'
 gem 'rubocop'
 gem 'rubocop-rake'
-gem 'test-kitchen'
+# test-kitchen 4.1.0's logger calls Time.now.utc.iso8601 in write_event without
+# require 'time', so kitchen crashes with "undefined method `iso8601' for Time"
+# before the scan runs (Gemfile.lock is untracked, so CI resolves the newest).
+# Pin to < 4.1 until the upstream logger regression is fixed.
+gem 'test-kitchen', '< 4.1'
 gem 'train-awsssm'
 
 source 'https://rubygems.cinc.sh/' do
