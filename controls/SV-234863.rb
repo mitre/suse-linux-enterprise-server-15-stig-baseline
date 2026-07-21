@@ -23,7 +23,8 @@ solver.upgradeRemoveDroppedPackages = true'
   tag 'host'
   tag 'container'
 
-  describe parse_config_file('/etc/dnf/dnf.conf') do
-    its('main.clean_requirements_on_remove') { should match(/1|True|yes/i) }
+  describe 'Outdated package removal in /etc/zypp/zypp.conf' do
+    subject { file('/etc/zypp/zypp.conf') }
+    its('content') { should match(/^\s*solver\.upgradeRemoveDroppedPackages\s*=\s*true\b/i) }
   end
 end

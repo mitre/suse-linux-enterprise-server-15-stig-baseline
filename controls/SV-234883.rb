@@ -26,21 +26,7 @@ Edit "/etc/pam.d/common-password" and edit the line containing "pam_cracklib.so"
   tag 'host'
   tag 'container'
 
-  describe 'pwquality.conf settings' do
-    let(:config) { parse_config_file('/etc/security/pwquality.conf', multiple_values: true) }
-    let(:setting) { 'lcredit' }
-    let(:value) { Array(config.params[setting]) }
-
-    it 'has `lcredit` set' do
-      expect(value).not_to be_empty, 'lcredit is not set in pwquality.conf'
-    end
-
-    it 'only sets `lcredit` once' do
-      expect(value.length).to eq(1), 'lcredit is commented or set more than once in pwquality.conf'
-    end
-
-    it 'does not set `lcredit` to a positive value' do
-      expect(value.first.to_i).to be < 0, 'lcredit is not set to a negative value in pwquality.conf'
-    end
+  describe pam('/etc/pam.d/common-password') do
+    its('lines') { should match_pam_rule('password requisite pam_cracklib.so').all_with_integer_arg('lcredit', '<=', input('lcredit')) }
   end
 end

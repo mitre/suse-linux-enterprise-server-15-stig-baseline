@@ -46,13 +46,18 @@ Set the value of the "space_left" keyword in "/etc/audit/auditd.conf" to 25 perc
   tag nist: ['AU-5 (1)']
   tag 'host'
 
-  alert_method = input('alert_method')
-
   only_if('This requirement is Not Applicable in the container', impact: 0.0) {
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  describe auditd_conf do
-    its('space_left_action.downcase') { should cmp alert_method }
+  # space_left must be >= the configured percentage of the audit partition so notification fires before the volume fills.
+  threshold = input('audit_storage_threshold')
+  audit_dir = command("dirname #{auditd_conf.log_file}").stdout.strip
+  partition_mb = command("df -m --output=size #{audit_dir}").stdout.lines.last.to_s.strip.to_i
+  expected_mb = (partition_mb * threshold / 100.0).floor
+
+  describe "auditd space_left (MB) vs #{threshold}% of the audit partition (#{expected_mb} MB)" do
+    subject { auditd_conf.space_left.to_i }
+    it { should cmp >= expected_mb }
   end
 end

@@ -40,6 +40,6 @@ MACs hmac-sha2-512,hmac-sha2-256'
   }
 
   describe sshd_config do
-    its('UsePAM') { should cmp 'yes' }
+    its('MACs') { should cmp input('approved_ssh_macs') }
   end
 end

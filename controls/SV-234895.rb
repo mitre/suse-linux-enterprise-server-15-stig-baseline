@@ -28,7 +28,7 @@ The DOD standard requires a minimum 15-character password length.'
   tag 'host'
   tag 'container'
 
-  describe parse_config_file('/etc/security/pwquality.conf') do
-    its('minlen.to_i') { should cmp >= input('pass_min_len') }
+  describe pam('/etc/pam.d/common-password') do
+    its('lines') { should match_pam_rule('password requisite pam_cracklib.so').all_with_integer_arg('minlen', '>=', input('pass_min_len')) }
   end
 end

@@ -34,14 +34,12 @@ memcache_timeout = 86400'
     !%w[docker podman kubepods lxc].include?(virtualization.system)
   }
 
-  describe.one do
-    describe 'Cache credentials enabled' do
-      subject { sssd_config.content }
-      it { should_not match(/cache_credentials\s*=\s*true/) }
-    end
-    describe 'Offline credentials expiration' do
-      subject { sssd_config }
-      its('pam.offline_credentials_expiration') { should cmp '1' }
+  nss_timeout = sssd_config.params.dig('nss', 'memcache_timeout')
+
+  describe 'SSSD [nss] memcache_timeout' do
+    it "is set and does not exceed #{input('nss_memcache_timeout')} seconds (one day)" do
+      expect(nss_timeout).not_to be_nil, 'memcache_timeout is not set under [nss] in /etc/sssd/sssd.conf'
+      expect(nss_timeout.to_i).to be <= input('nss_memcache_timeout') unless nss_timeout.nil?
     end
   end
 end

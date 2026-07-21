@@ -31,8 +31,8 @@ transport = krb5'
   }
 
   if input('alternative_logging_method') == ''
-    describe parse_config_file('/etc/audit/auditd.conf') do
-      its('overflow_action') { should match(/syslog$|single$|halt$/i) }
+    describe parse_config_file('/etc/audit/audisp-remote.conf') do
+      its('transport') { should cmp 'krb5' }
     end
   else
     describe 'manual check' do

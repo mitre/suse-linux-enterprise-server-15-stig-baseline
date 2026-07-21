@@ -26,7 +26,7 @@ password requisite pam_cracklib.so'
   tag 'host'
   tag 'container'
 
-  describe parse_config_file('/etc/security/pwquality.conf') do
-    its('dictcheck') { should eq '1' }
+  describe pam('/etc/pam.d/common-password') do
+    its('lines') { should match_pam_rule('password requisite pam_cracklib.so') }
   end
 end

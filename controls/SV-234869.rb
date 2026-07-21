@@ -39,9 +39,8 @@ auth sufficient pam_pkcs11.so'
   }
 
   if input('alternate_mfa_method') == ''
-    describe file('/etc/sssd/sssd.conf') do
-      it { should exist }
-      its('content') { should match(/^\s*\[certmap.*\]\s*$/) }
+    describe pam('/etc/pam.d/common-auth') do
+      its('lines') { should match_pam_rule('auth sufficient pam_pkcs11.so') }
     end
   else
     impact 0.0

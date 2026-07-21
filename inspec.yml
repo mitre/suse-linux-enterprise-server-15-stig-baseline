@@ -250,6 +250,24 @@ inputs:
     type: Numeric
     value: 15
 
+  # SV-234826
+  - name: approved_ssh_macs
+    description: Approved SSH MACs, in the STIG-mandated order (strongest to weakest)
+    type: String
+    value: 'hmac-sha2-512,hmac-sha2-256'
+
+  # SV-234857
+  - name: nss_memcache_timeout
+    description: Maximum seconds NSS may use cached authentications (STIG requires one day or less)
+    type: Numeric
+    value: 86400
+
+  # SV-234956
+  - name: action_mail_acct
+    description: Account auditd emails when an audit processing failure occurs
+    type: String
+    value: 'root'
+
   # SV-234867
   - name: faillock_tally
     description: The default SELinux security context type of the non-default tally directory
@@ -837,7 +855,7 @@ inputs:
     type: String
     value: ""
 
-  # (unused — no controls reference this input)
+  # SV-234969
   - name: audit_storage_threshold
     description: The percentage threshold of space remaining in the audit storage volume before the system should take action
     type: Numeric
@@ -1243,9 +1261,15 @@ inputs:
     type: Boolean
     value: false
 
+  # SV-234883
+  - name: lcredit
+    description: pam_cracklib minimum number of lowercase characters (negative = required minimum)
+    type: Numeric
+    value: -1
+
   # SV-234896
   - name: ocredit
-    description: pwquality minimum number of special characters (negative = required minimum)
+    description: pam_cracklib minimum number of special characters (negative = required minimum)
     type: Numeric
     value: -1
 

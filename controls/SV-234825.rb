@@ -32,7 +32,7 @@ ENCRYPT_METHOD SHA512'
   tag nist: ['IA-7']
   tag 'host'
 
-  describe file('/etc/crypto-policies/back-ends/krb5.config') do
-    its('link_path') { should match(%r{/usr/share/crypto-policies/FIPS}) }
+  describe login_defs do
+    its('ENCRYPT_METHOD') { should cmp 'SHA512' }
   end
 end

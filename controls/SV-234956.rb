@@ -51,8 +51,8 @@ action_mail_acct = root'
       end
     end
   else
-    describe command('grep "postmaster:\s*root$" /etc/aliases') do
-      its('stdout.strip') { should match(/postmaster:\s*root/) }
+    describe auditd_conf do
+      its('action_mail_acct') { should cmp input('action_mail_acct') }
     end
   end
 end
