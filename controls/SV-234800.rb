@@ -44,14 +44,15 @@ If the system requires Long-Term Service Pack Support (LTSS), obtain the correct
 
   release = os.release
 
+  # Match both the VM dotted form (15.6) and the BCI container form (15-SP6).
   EOMS_DATE = {
-    /^15\.1/ => 'January 31, 2024',
-    /^15\.2/ => 'December 31, 2024',
-    /^15\.3/ => 'December 31, 2025',
-    /^15\.4/ => 'December 31, 2026',
-    /^15\.5/ => 'December 31, 2027',
-    /^15\.6/ => 'December 31, 2028',
-    /^15\.7/ => 'July 31, 2034'
+    /^15[.-](SP)?1\b/ => 'January 31, 2024',
+    /^15[.-](SP)?2\b/ => 'December 31, 2024',
+    /^15[.-](SP)?3\b/ => 'December 31, 2025',
+    /^15[.-](SP)?4\b/ => 'December 31, 2026',
+    /^15[.-](SP)?5\b/ => 'December 31, 2027',
+    /^15[.-](SP)?6\b/ => 'December 31, 2028',
+    /^15[.-](SP)?7\b/ => 'July 31, 2034'
   }.find { |k, _v| k.match(release) }&.last
 
   describe "The release \"#{release}\"" do
