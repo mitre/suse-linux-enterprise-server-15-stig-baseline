@@ -18,14 +18,34 @@ The audit daemon must be restarted for the changes to take effect.
 
 > sudo systemctl restart auditd.service'
   impact 0.5
-  tag check_id: 'C-38169r619212_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234981'
   tag rid: 'SV-234981r991589_rule'
   tag stig_id: 'SLES-15-030820'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38132r619213_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
+  tag legacy: []
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  # A "task,never" rule disables syscall auditing; it must be absent both at runtime and in the static rules.
+  loaded = command('auditctl -l').stdout.lines.grep(/task,never/i).map(&:strip)
+  static = command("grep -rv '^#' /etc/audit/rules.d/ | grep -i 'task,never'").stdout.strip.split("\n").reject(&:empty?)
+
+  describe 'Loaded audit rules (auditctl -l)' do
+    it 'must not disable syscall auditing with a "task,never" rule' do
+      expect(loaded).to be_empty, "Disabling rules loaded:\n\t- #{loaded.join("\n\t- ")}"
+    end
+  end
+
+  describe 'Static audit rules in /etc/audit/rules.d' do
+    it 'must not statically define a "task,never" rule' do
+      expect(static).to be_empty, "Disabling rules in rules.d:\n\t- #{static.join("\n\t- ")}"
+    end
+  end
 end

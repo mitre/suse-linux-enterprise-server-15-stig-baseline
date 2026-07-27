@@ -31,4 +31,15 @@ If any system commands are returned that are not Set Group ID upon execution (SG
   tag 'documentable'
   tag cci: ['CCI-001499']
   tag nist: ['CM-5 (6)']
+
+  dirs = input('system_command_dirs').select { |d| file(d).exist? }
+
+  find_cmd = "find -L #{dirs.join(' ')} ! -group root -type f -exec stat -c '%n %G' '{}' \\;"
+  non_root_group_files = command(find_cmd).stdout.strip.split("\n").reject(&:empty?)
+
+  describe 'System commands not group-owned by root' do
+    it 'should have every system command group-owned by root' do
+      expect(non_root_group_files).to be_empty, "Commands not group-owned by root (run: chgrp root <file>):\n\t- #{non_root_group_files.join("\n\t- ")}"
+    end
+  end
 end

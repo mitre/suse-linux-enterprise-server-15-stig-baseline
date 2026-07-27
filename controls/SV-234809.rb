@@ -62,4 +62,21 @@ Run the following command to update the database:
   tag 'documentable'
   tag cci: ['CCI-001384', 'CCI-001385', 'CCI-001386', 'CCI-001387', 'CCI-001388']
   tag nist: ['AC-8 c 1', 'AC-8 c 2', 'AC-8 c 2', 'AC-8 c 2', 'AC-8 c 3']
+
+  if package('gdm').installed?
+    # "\n" are formatting-only per the check note, so normalize them (and quotes/whitespace) before matching.
+    raw = command('grep -rh banner-message-text /etc/dconf/db/gdm.d/').stdout
+    actual = raw.sub(/.*banner-message-text\s*=\s*/m, '').gsub('\\n', ' ').delete('"').gsub(/\s+/, ' ').strip
+    expected = input('banner_message_text_gui').gsub(/\s+/, ' ').strip
+
+    describe 'GDM banner-message-text' do
+      subject { actual }
+      it { should eq expected }
+    end
+  else
+    impact 0.0
+    describe 'GNOME Display Manager (gdm)' do
+      skip 'No graphical user interface installed; this requirement is Not Applicable.'
+    end
+  end
 end

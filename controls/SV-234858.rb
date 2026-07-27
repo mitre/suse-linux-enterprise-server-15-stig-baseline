@@ -12,7 +12,7 @@ Check that cached off line authentications cannot be used after one day with the
 offline_credentials_expiration = 1
 
 If "offline_credentials_expiration" is not set to a value of "1", this is a finding.'
-  desc 'fix', 'Configure the SUSE operating system PAM to prohibit the use of cached authentications after one day. 
+  desc 'fix', 'Configure the SUSE operating system PAM to prohibit the use of cached authentications after one day.
 
 Add or change the following line in "/etc/sssd/sssd.conf" just below the line "[pam]":
 
@@ -28,4 +28,17 @@ offline_credentials_expiration = 1'
   tag 'documentable'
   tag cci: ['CCI-002007']
   tag nist: ['IA-5 (13)']
+
+  sssd_conf = '/etc/sssd/sssd.conf'
+
+  if file(sssd_conf).exist?
+    describe parse_config_file(sssd_conf) do
+      its('offline_credentials_expiration') { should cmp 1 }
+    end
+  else
+    impact 0.0
+    describe 'SSSD offline credential caching' do
+      skip "#{sssd_conf} is not present; SSSD is not in use, so this requirement is Not Applicable."
+    end
+  end
 end

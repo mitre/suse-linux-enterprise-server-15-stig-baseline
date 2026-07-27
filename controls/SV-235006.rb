@@ -14,14 +14,18 @@ If any results are returned, this is a finding.'
 
 Additional information on the configuration of multifactor authentication on the SUSE operating system can be found at https://www.suse.com/communities/blog/configuring-smart-card-authentication-suse-linux-enterprise/."
   impact 0.5
-  tag check_id: 'C-38194r619287_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-235006'
   tag rid: 'SV-235006r991589_rule'
   tag stig_id: 'SLES-15-040220'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38157r619288_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+  tag 'container'
+
+  describe command('find /etc/pam.d/ -type l -iname "common-*"') do
+    its('stdout.strip') { should be_empty }
+  end
 end

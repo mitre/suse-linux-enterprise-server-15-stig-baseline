@@ -17,18 +17,25 @@ If the ctrl-alt-del.target is not masked, this is a finding.'
 
 > sudo systemctl mask ctrl-alt-del.target
 
-And reload the daemon to take effect 
+And reload the daemon to take effect
 
 > sudo systemctl daemon-reload'
   impact 0.7
-  tag check_id: 'C-38176r619233_chk'
   tag severity: 'high'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234988'
   tag rid: 'SV-234988r991589_rule'
   tag stig_id: 'SLES-15-040060'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38139r619234_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('Control not applicable within a container', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe command('systemctl is-enabled ctrl-alt-del.target') do
+    its('stdout.strip') { should cmp 'masked' }
+  end
 end

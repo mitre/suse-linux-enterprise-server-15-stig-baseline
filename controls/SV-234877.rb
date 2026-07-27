@@ -11,14 +11,30 @@ ALL     ALL=(ALL:ALL) ALL)
 ALL     ALL=(ALL) ALL
 ALL     ALL=(ALL:ALL) ALL'
   impact 0.5
-  tag check_id: 'C-38065r618900_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234877'
   tag rid: 'SV-234877r991589_rule'
   tag stig_id: 'SLES-15-020101'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38028r618901_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers without sudo installed', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system) || command('sudo').exist?
+  }
+
+  bad_sudoers_rules = sudoers(input('sudoers_config_files').join(' ')).rules.where {
+    users == 'ALL' &&
+      hosts == 'ALL' &&
+      run_as.start_with?('ALL') &&
+      commands == 'ALL'
+  }
+
+  describe 'Sudoers file(s)' do
+    it 'should not contain any unrestricted sudo rules' do
+      expect(bad_sudoers_rules.entries).to be_empty, "Unrestricted sudo rules found; check sudoers file(s):\n\t- #{input('sudoers_config_files').join("\n\t- ")}"
+    end
+  end
 end

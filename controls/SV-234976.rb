@@ -15,7 +15,7 @@ If the command does not return a line that matches the example, this is a findin
 
 Note:
 The "-k" allows for specifying an arbitrary identifier. The string following "-k" does not need to match the example output above.)
-  desc 'fix', 'Configure the SUSE operating system to generate an audit record for the "/var/log/wtmp" file. 
+  desc 'fix', 'Configure the SUSE operating system to generate an audit record for the "/var/log/wtmp" file.
 
 Add or update the following rules to "/etc/audit/rules.d/audit.rules":
 
@@ -39,4 +39,19 @@ or issue the following command:
   tag 'documentable'
   tag cci: ['CCI-000172']
   tag nist: ['AU-12 c']
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  audit_command = '/var/log/wtmp'
+
+  describe 'Command' do
+    it "#{audit_command} is audited properly" do
+      audit_rule = auditd.file(audit_command)
+      expect(audit_rule).to exist
+      expect(audit_rule.permissions.flatten).to include('w', 'a')
+      expect(audit_rule.key.uniq).to include(input('audit_rule_keynames').merge(input('audit_rule_keynames_overrides'))[audit_command])
+    end
+  end
 end

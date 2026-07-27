@@ -1,0 +1,13 @@
+# Pass/fail gate for the LXD VM "hardened" scan (SLES 15 + ansible-lockdown
+# SUSE15-CIS remediation -- see spec/ansible/roles/ansible-role-sles-hardened.yml
+# for why CIS stands in for an unavailable STIG playbook).
+#
+# compliance.min is 0 for now because the profile is freshly stubbed. As controls
+# are implemented, raise this toward the compliance a CIS-hardened box should
+# achieve against the STIG so the pipeline guards against hardening/control
+# regressions. error.total.max stays 0.
+compliance:
+  min: 0
+error:
+  total:
+    max: 0

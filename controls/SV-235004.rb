@@ -25,14 +25,45 @@ If a separate entry for the file system/partition that contains the nonprivilege
 
 Migrate the nonprivileged local interactive user home directories onto the separate file system/partition.'
   impact 0.3
-  tag check_id: 'C-38192r1184483_chk'
   tag severity: 'low'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-235004'
   tag rid: 'SV-235004r1184485_rule'
   tag stig_id: 'SLES-15-040200'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38155r1184484_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('This requirement is Not Applicable inside a container; the host manages the container filesystem') {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  ignore_shells = input('non_interactive_shells').join('|')
+  homes = users.where { uid >= 1000 && !shell.match(ignore_shells) }.homes
+  root_device = etc_fstab.where { mount_point == '/' }.device_name
+
+  if input('exempt_separate_filesystem')
+    impact 0.0
+    describe 'This system is not required to have separate filesystems for each mount point' do
+      skip 'The system is managing filesystems and space via other mechanisms; this requirement is Not Applicable'
+    end
+  else
+    homes.each do |home|
+      pn_parent = Pathname.new(home).parent.to_s
+      home_device = etc_fstab.where { mount_point == pn_parent }.device_name
+
+      describe "The '#{pn_parent}' mount point" do
+        subject { home_device }
+
+        it 'is not on the same partition as the root partition' do
+          is_expected.not_to equal(root_device)
+        end
+
+        it 'has its own partition' do
+          is_expected.not_to be_empty
+        end
+      end
+    end
+  end
 end

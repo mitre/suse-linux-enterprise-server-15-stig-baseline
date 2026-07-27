@@ -31,4 +31,15 @@ If any system commands directories are returned that are not Set Group ID up on 
   tag 'documentable'
   tag cci: ['CCI-001499']
   tag nist: ['CM-5 (6)']
+
+  dirs = input('system_command_dirs').select { |d| file(d).exist? }
+
+  find_cmd = "find -L #{dirs.join(' ')} ! -group root -type d -exec stat -c '%n %G' '{}' \\;"
+  non_root_group_dirs = command(find_cmd).stdout.strip.split("\n").reject(&:empty?)
+
+  describe 'System command directories not group-owned by root' do
+    it 'should have every system command directory group-owned by root' do
+      expect(non_root_group_dirs).to be_empty, "Directories not group-owned by root (run: chgrp root <dir>):\n\t- #{non_root_group_dirs.join("\n\t- ")}"
+    end
+  end
 end

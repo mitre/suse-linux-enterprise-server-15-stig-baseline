@@ -6,17 +6,15 @@ Audit records can be generated from various components within the information sy
 
 The list of audited events is the set of events for which audits are to be generated. This set of events is typically a subset of the list of all events for which the system is capable of generating audit records.
 
-DoD has defined the following list of events for which the SUSE operating system will provide an audit record generation capability: 
+DoD has defined the following list of events for which the SUSE operating system will provide an audit record generation capability:
 
 1) Successful and unsuccessful attempts to access, modify, or delete privileges, security objects, security levels, or categories of information (e.g., classification levels);
 
 2) Access actions, such as successful and unsuccessful logon attempts, privileged activities or other system-level access, starting and ending time for user access to the system, concurrent logons from different workstations, successful and unsuccessful accesses to objects, all program initiations, and all direct access to the information system;
 
-3) All account creations, modifications, disabling, and terminations; and 
+3) All account creations, modifications, disabling, and terminations; and
 
-4) All kernel module load, unload, and restart actions.
-
-'
+4) All kernel module load, unload, and restart actions.'
   desc 'check', %q(Verify the SUSE operating system generates an audit record for all uses of the "rmmod" command.
 
 Check that the command is being audited by performing the following command:
@@ -25,7 +23,7 @@ Check that the command is being audited by performing the following command:
 
 -w /sbin/rmmod -p x -k modules
 
-If the system is configured to audit the execution of the module management program "rmmod", the command will return a line. 
+If the system is configured to audit the execution of the module management program "rmmod", the command will return a line.
 
 If the command does not return a line, this is a finding.
 
@@ -43,15 +41,29 @@ or issue the following command:
 
 > sudo augenrules --load'
   impact 0.5
-  tag check_id: 'C-38126r619083_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000037-GPOS-00015'
+  tag satisfies: ['SRG-OS-000062-GPOS-00031', 'SRG-OS-000037-GPOS-00015', 'SRG-OS-000042-GPOS-00020', 'SRG-OS-000392-GPOS-00172', 'SRG-OS-000462-GPOS-00206', 'SRG-OS-000471-GPOS-00215', 'SRG-OS-000463-GPOS-00207', 'SRG-OS-000465-GPOS-00209']
   tag gid: 'V-234938'
   tag rid: 'SV-234938r958412_rule'
   tag stig_id: 'SLES-15-030390'
-  tag gtitle: 'SRG-OS-000037-GPOS-00015'
   tag fix_id: 'F-38089r619084_fix'
-  tag satisfies: ['SRG-OS-000037-GPOS-00015', 'SRG-OS-000062-GPOS-00031', 'SRG-OS-000392-GPOS-00172', 'SRG-OS-000462-GPOS-00206', 'SRG-OS-000471-GPOS-00215']
-  tag 'documentable'
-  tag cci: ['CCI-000130', 'CCI-000169', 'CCI-000172', 'CCI-002884']
-  tag nist: ['AU-3 a', 'AU-12 a', 'AU-12 c', 'MA-4 (1) (a)']
+  tag cci: ['CCI-000169', 'CCI-000130', 'CCI-000135', 'CCI-000172', 'CCI-002884']
+  tag nist: ['AU-12 a', 'AU-3 a', 'AU-3 (1)', 'AU-12 c', 'MA-4 (1) (a)']
+  tag 'host'
+
+  audit_command = '/sbin/rmmod'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe 'Command' do
+    it "#{audit_command} is audited properly" do
+      audit_rule = auditd.file(audit_command)
+      expect(audit_rule).to exist
+      expect(audit_rule.permissions.flatten).to include('x')
+      expect(audit_rule.key.uniq).to include(input('audit_rule_keynames').merge(input('audit_rule_keynames_overrides'))[audit_command])
+    end
+  end
 end

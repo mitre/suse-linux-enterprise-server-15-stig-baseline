@@ -11,7 +11,7 @@ To immediately disconnect or disable remote access, the firewall needs to be set
 To enable remote connection again, panic mode needs to be disabled.
 
 > sudo firewall-cmd --panic-off'
-  desc 'check', 'Verify "firewalld" is configured to protect the SUSE operating system. 
+  desc 'check', 'Verify "firewalld" is configured to protect the SUSE operating system.
 
 Run the following command:
 
@@ -56,4 +56,13 @@ To enable remote connection again, panic mode needs to be disabled.
   tag 'documentable'
   tag cci: ['CCI-002322']
   tag nist: ['AC-17 (9)']
+
+  only_if('This control is Not Applicable to containers (the host manages the firewall)', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe service('firewalld') do
+    it { should be_enabled }
+    it { should be_running }
+  end
 end

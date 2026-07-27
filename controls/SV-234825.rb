@@ -2,7 +2,7 @@ control 'SV-234825' do
   title 'The SUSE operating system must employ FIPS 140-2 approved cryptographic hashing algorithm for system authentication (login.defs).'
   desc 'Unapproved mechanisms that are used for authentication to the cryptographic module are not verified and therefore cannot be relied on to provide confidentiality or integrity, and DoD data may be compromised.
 
-SUSE operating systems using encryption are required to use FIPS-compliant mechanisms for authenticating to cryptographic modules. 
+SUSE operating systems using encryption are required to use FIPS-compliant mechanisms for authenticating to cryptographic modules.
 
 FIPS 140-2 is the current standard for validating that mechanisms used to access cryptographic modules use authentication that meets DoD requirements. This allows for Security Levels 1, 2, 3, or 4 for use on a general-purpose computing system.'
   desc 'check', 'Verify the SUSE operating system requires that the "ENCRYPT_METHOD" value in "/etc/login.defs" is set to "SHA512".
@@ -30,4 +30,9 @@ ENCRYPT_METHOD SHA512'
   tag 'documentable'
   tag cci: ['CCI-000803']
   tag nist: ['IA-7']
+  tag 'host'
+
+  describe login_defs do
+    its('ENCRYPT_METHOD') { should cmp 'SHA512' }
+  end
 end

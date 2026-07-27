@@ -8,9 +8,7 @@ A privileged account is defined as an information system account with authorizat
 
 Remote access is access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, nonorganization-controlled network. Remote access methods include, for example, dial-up, broadband, and wireless.
 
-This requirement only applies to components with device-specific functions, or for organizational users (e.g., VPN, proxy capability). This does not apply to authentication for the purpose of configuring the device itself (management).
-
-'
+This requirement only applies to components with device-specific functions, or for organizational users (e.g., VPN, proxy capability). This does not apply to authentication for the purpose of configuring the device itself (management).'
   desc 'check', %q(Verify the SUSE operating system implements certificate status checking for multifactor authentication.
 
 Check that certificate status checking for multifactor authentication is implemented with the following command:
@@ -28,15 +26,38 @@ Note: OCSP allows sending request for certificate status information. Additional
 
 Additional information on the configuration of multifactor authentication on the SUSE operating system can be found at https://www.suse.com/communities/blog/configuring-smart-card-authentication-suse-linux-enterprise/.'
   impact 0.5
-  tag check_id: 'C-38043r1155788_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000375-GPOS-00160'
+  tag satisfies: ['SRG-OS-000375-GPOS-00160', 'SRG-OS-000377-GPOS-00162', 'SRG-OS-000376-GPOS-00161']
   tag gid: 'V-234855'
   tag rid: 'SV-234855r1155789_rule'
   tag stig_id: 'SLES-15-010470'
-  tag gtitle: 'SRG-OS-000375-GPOS-00160'
   tag fix_id: 'F-38006r618835_fix'
-  tag satisfies: ['SRG-OS-000375-GPOS-00160', 'SRG-OS-000376-GPOS-00161', 'SRG-OS-000377-GPOS-00162']
-  tag 'documentable'
-  tag cci: ['CCI-004046', 'CCI-001953', 'CCI-001954', 'CCI-001948']
-  tag nist: ['IA-2 (6) (a)', 'IA-2 (12)', 'IA-2 (12)', 'IA-2 (11)']
+  tag cci: ['CCI-001948', 'CCI-001954', 'CCI-004046', 'CCI-001953']
+  tag nist: ['IA-2 (11)', 'IA-2 (12)', 'IA-2 (6) (a)']
+  tag 'host'
+
+  only_if('This requirement is Not Applicable inside the container', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  if input('alternate_mfa_method').to_s.empty?
+    pkcs11_conf = '/etc/pam_pkcs11/pam_pkcs11.conf'
+    cert_policy_lines = file(pkcs11_conf).content.to_s.lines.map(&:strip).reject { |l| l.start_with?('#') }.select { |l| l.include?('cert_policy') }
+
+    describe "cert_policy lines in #{pkcs11_conf}" do
+      it 'should be present' do
+        expect(cert_policy_lines).not_to be_empty, "No cert_policy lines found in #{pkcs11_conf}"
+      end
+      it 'should all include ocsp_on' do
+        failing = cert_policy_lines.reject { |l| l.include?('ocsp_on') }
+        expect(failing).to be_empty, "cert_policy lines missing 'ocsp_on':\n\t- #{failing.join("\n\t- ")}"
+      end
+    end
+  else
+    impact 0.0
+    describe 'N/A' do
+      skip 'The system is using an approved alternative MFA method; this control is Not Applicable.'
+    end
+  end
 end

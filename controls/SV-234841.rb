@@ -21,14 +21,22 @@ If any directories are found to be group-writable or world-writable, this is a f
 
 > sudo find -L /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -perm /022 -type d -exec chmod -R 755 '{}' \\;"
   impact 0.5
-  tag check_id: 'C-38029r618792_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000259-GPOS-00100'
   tag gid: 'V-234841'
   tag rid: 'SV-234841r991560_rule'
   tag stig_id: 'SLES-15-010358'
-  tag gtitle: 'SRG-OS-000259-GPOS-00100'
   tag fix_id: 'F-37992r618793_fix'
-  tag 'documentable'
   tag cci: ['CCI-001499']
   tag nist: ['CM-5 (6)']
+  tag 'host'
+  tag 'container'
+
+  failing_dirs = command("find -L #{input('system_command_dirs').join(' ')} -perm /022 -type d").stdout.strip
+
+  describe 'System command directories more permissive than 0755' do
+    it 'should not exist' do
+      expect(failing_dirs).to be_empty, "Group- or world-writable directories:\n\t- #{failing_dirs.split("\n").join("\n\t- ")}"
+    end
+  end
 end

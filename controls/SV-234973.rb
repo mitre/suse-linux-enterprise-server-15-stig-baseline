@@ -16,7 +16,7 @@ If both the "b32" and "b64" audit rules are not defined for the "unlink", "unlin
 
 Note:
 The "-k" allows for specifying an arbitrary identifier. The string following "-k" does not need to match the example output above.)
-  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "unlink", "unlinkat", "rename", "renameat", and "rmdir" system calls. 
+  desc 'fix', 'Configure the SUSE operating system to generate an audit record for all uses of the "unlink", "unlinkat", "rename", "renameat", and "rmdir" system calls.
 
 Add or update the following rules to "/etc/audit/rules.d/audit.rules":
 
@@ -41,4 +41,28 @@ or issue the following command:
   tag 'documentable'
   tag cci: ['CCI-000172']
   tag nist: ['AU-12 c']
+
+  audit_syscalls = %w[unlink unlinkat rename renameat rmdir]
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe 'Syscall' do
+    audit_syscalls.each do |audit_syscall|
+      it "#{audit_syscall} is audited properly" do
+        audit_rule = auditd.syscall(audit_syscall)
+        expect(audit_rule).to exist
+        expect(audit_rule.action.uniq).to cmp 'always'
+        expect(audit_rule.list.uniq).to cmp 'exit'
+        if os.arch.match(/64/)
+          expect(audit_rule.arch.uniq).to include('b32', 'b64')
+        else
+          expect(audit_rule.arch.uniq).to cmp 'b32'
+        end
+        expect(audit_rule.fields.flatten).to include('auid>=1000', 'auid!=-1')
+        expect(audit_rule.key.uniq).to include(input('audit_rule_keynames').merge(input('audit_rule_keynames_overrides'))[audit_syscall])
+      end
+    end
+  end
 end

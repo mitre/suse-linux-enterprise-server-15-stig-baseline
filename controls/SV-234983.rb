@@ -26,4 +26,17 @@ auth required pam_faildelay.so delay=4000000'
   tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+
+  describe 'The pam_faildelay configuration in /etc/pam.d/common-auth' do
+    subject do
+      file('/etc/pam.d/common-auth').content.lines.find do |line|
+        line =~ /^\s*auth\s+\S+\s+pam_faildelay\.so/
+      end
+    end
+    it 'must enforce a failed-logon delay of at least 4000000 microseconds (4 seconds)' do
+      expect(subject).not_to be_nil, 'No "auth ... pam_faildelay.so" line found in /etc/pam.d/common-auth'
+      delay = subject.to_s[/delay=(\d+)/, 1].to_i
+      expect(delay).to be >= 4_000_000
+    end
+  end
 end

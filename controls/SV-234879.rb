@@ -1,6 +1,6 @@
 control 'SV-234879' do
   title %q(The SUSE operating system must use the invoking user's password for privilege escalation when using "sudo".)
-  desc %q(The sudoers security policy requires that users authenticate themselves before they can use sudo. When sudoers requires authentication, it validates the invoking user's credentials. If the rootpw, targetpw, or runaspw flags are defined and not disabled, by default the operating system will prompt the invoking user for the "root" user password. 
+  desc %q(The sudoers security policy requires that users authenticate themselves before they can use sudo. When sudoers requires authentication, it validates the invoking user's credentials. If the rootpw, targetpw, or runaspw flags are defined and not disabled, by default the operating system will prompt the invoking user for the "root" user password.
 For more information on each of the listed configurations, reference the sudoers(5) manual page.)
   desc 'check', %q(Verify that the sudoers security policy is configured to use the invoking user's password for privilege escalation.
 
@@ -30,4 +30,18 @@ Defaults !runaspw'
   tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('Control not applicable within a container', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe sudoers(input('sudoers_config_files')) do
+    its('settings.Defaults') { should include '!targetpw' }
+    its('settings.Defaults') { should include '!rootpw' }
+    its('settings.Defaults') { should include '!runaspw' }
+    its('settings.Defaults') { should_not include 'targetpw' }
+    its('settings.Defaults') { should_not include 'rootpw' }
+    its('settings.Defaults') { should_not include 'runaspw' }
+  end
 end

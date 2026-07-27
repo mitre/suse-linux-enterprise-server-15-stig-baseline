@@ -1,8 +1,6 @@
 control 'SV-234959' do
   title 'The SUSE operating system must protect audit rules from unauthorized modification.'
-  desc "Without the capability to restrict which roles and individuals can select which events are audited, unauthorized personnel may be able to prevent the auditing of critical events. Misconfigured audits may degrade the system's performance by overwhelming the audit log. Misconfigured audits may also make it more difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
-
-"
+  desc "Without the capability to restrict which roles and individuals can select which events are audited, unauthorized personnel may be able to prevent the auditing of critical events. Misconfigured audits may degrade the system's performance by overwhelming the audit log. Misconfigured audits may also make it more difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one."
   desc 'check', 'Verify that the SUSE operating system protects audit rules from unauthorized modification.
 
 Check that "permissions.local" file contains the correct permissions rules with the following command:
@@ -34,15 +32,46 @@ Set the correct permissions with the following command:
 
 > sudo chkstat --set /etc/permissions.local'
   impact 0.5
-  tag check_id: 'C-38147r619146_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000057-GPOS-00027'
+  tag satisfies: ['SRG-OS-000057-GPOS-00027', 'SRG-OS-000058-GPOS-00028', 'SRG-OS-000059-GPOS-00029']
   tag gid: 'V-234959'
   tag rid: 'SV-234959r958434_rule'
   tag stig_id: 'SLES-15-030600'
-  tag gtitle: 'SRG-OS-000057-GPOS-00027'
   tag fix_id: 'F-38110r619147_fix'
-  tag satisfies: ['SRG-OS-000057-GPOS-00027', 'SRG-OS-000058-GPOS-00028', 'SRG-OS-000059-GPOS-00029']
-  tag 'documentable'
   tag cci: ['CCI-000162', 'CCI-000163', 'CCI-000164']
-  tag nist: ['AU-9 a', 'AU-9 a', 'AU-9 a']
+  tag nist: ['AU-9', 'AU-9 a']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+  exact_modes = input('file_modes')['exact']
+  audit_perm_rules = [
+    '/var/log/audit',
+    '/var/log/audit/audit.log',
+    '/etc/audit/audit.rules',
+    '/etc/audit/rules.d/audit.rules'
+  ].map { |path| [path, 'root:root', exact_modes[path.to_sym]] }
+  permissions_local = file('/etc/permissions.local').content.to_s
+
+  missing = audit_perm_rules.reject do |path, owner, mode|
+    octet = mode.to_s.sub(/\A0/, '')
+    permissions_local.match?(/^\s*#{Regexp.escape(path)}\s+#{Regexp.escape(owner)}\s+0?#{octet}\s*$/)
+  end
+
+  describe file('/etc/permissions.local') do
+    it { should exist }
+  end
+
+  describe 'The audit path entries in /etc/permissions.local' do
+    it 'should each declare the required owner and mode' do
+      failures = missing.map { |path, owner, mode| "#{path} #{owner} #{mode}" }
+      expect(missing).to be_empty, "Missing or incorrect entries:\n\t- #{failures.join("\n\t- ")}"
+    end
+  end
+
+  describe command('chkstat /etc/permissions.local') do
+    its('stdout.strip') { should be_empty }
+  end
 end

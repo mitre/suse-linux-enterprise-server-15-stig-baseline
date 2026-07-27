@@ -10,19 +10,30 @@ Note: "/var/log/audit" is used as the example as it is a common location.
 > grep /var/log/audit /etc/fstab
 UUID=3645951a /var/log/audit ext4 defaults 1 2
 
-If a separate entry for the system audit data path (in this example the "/var/log/audit" path) does not exist, ask the System Administrator if the system audit logs are being written to a different file system/partition on the system and then grep for that file system/partition. 
+If a separate entry for the system audit data path (in this example the "/var/log/audit" path) does not exist, ask the System Administrator if the system audit logs are being written to a different file system/partition on the system and then grep for that file system/partition.
 
 If a separate file system/partition does not exist for the system audit data path, this is a finding.'
   desc 'fix', 'Migrate the SUSE operating system audit data path onto a separate file system.'
   impact 0.3
-  tag check_id: 'C-38168r619209_chk'
   tag severity: 'low'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234980'
   tag rid: 'SV-234980r991589_rule'
   tag stig_id: 'SLES-15-030810'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38131r619210_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe mount('/var/log/audit') do
+    it { should be_mounted }
+  end
+
+  describe etc_fstab.where { mount_point == '/var/log/audit' } do
+    it { should exist }
+  end
 end

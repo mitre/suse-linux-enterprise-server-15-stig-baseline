@@ -1,0 +1,20 @@
+---
+# Bring a stock SLES 15 box up to date and install the utilities the profile and
+# the test harness expect. Requires zypper repositories to be available (the JeOS
+# image needs SCC registration for this -- see kitchen.lxd.yml pre_converge).
+- name: Upgrade all packages
+  community.general.zypper:
+    name: "*"
+    state: latest
+    update_cache: true
+
+- name: Install required packages
+  community.general.zypper:
+    name:
+      - jq
+      - vim
+      - bc
+      - unzip
+      - wget
+      - curl
+    state: present

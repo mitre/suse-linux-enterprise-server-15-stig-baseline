@@ -21,6 +21,25 @@ Edit "/etc/pam.d/common-password" and edit the line containing "pam_cracklib.so"
   tag gtitle: 'SRG-OS-000072-GPOS-00040'
   tag fix_id: 'F-38036r618925_fix'
   tag 'documentable'
-  tag cci: ['CCI-004066', 'CCI-000195']
-  tag nist: ['IA-5 (1) (h)', 'IA-5 (1) (b)']
+  tag cci: ['CCI-000195', 'CCI-004066']
+  tag nist: ['IA-5 (1) (b)', 'IA-5 (1) (h)']
+  tag 'host'
+  tag 'container'
+
+  expected_value = input('difok')
+  cracklib_line = file('/etc/pam.d/common-password').content.to_s.lines.map(&:strip).reject { |l| l.start_with?('#') }.find { |l| l.include?('pam_cracklib.so') }
+
+  describe 'The pam_cracklib.so line in /etc/pam.d/common-password' do
+    it 'should be present and not commented out' do
+      expect(cracklib_line).not_to be_nil, 'No pam_cracklib.so line found in /etc/pam.d/common-password'
+    end
+    it 'should have `requisite` as the second column' do
+      expect(cracklib_line.to_s.split[1]).to eq('requisite'), "Second column is '#{cracklib_line.to_s.split[1]}', expected 'requisite'"
+    end
+    it "should set difok to #{expected_value} or greater" do
+      value = cracklib_line.to_s[/\bdifok=(\d+)/, 1]
+      expect(value).not_to be_nil, 'pam_cracklib.so line does not contain difok'
+      expect(value.to_i).to be >= expected_value, "difok is set to '#{value}', expected >= #{expected_value}"
+    end
+  end
 end

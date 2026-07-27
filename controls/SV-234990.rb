@@ -34,4 +34,13 @@ Reload the daemon for this change to take effect:
   tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('Control not applicable within a container without sudo enabled', impact: 0.0) do
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  end
+
+  describe command('systemd-analyze cat-config systemd/system.conf') do
+    its('stdout') { should match(/^\s*CtrlAltDelBurstAction\s*=\s*none/) }
+  end
 end

@@ -21,14 +21,22 @@ If any files are found to be group-writable or world-writable, this is a finding
 
 > sudo find -L /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -perm /022 -type f -exec chmod 755 '{}' \\;"
   impact 0.5
-  tag check_id: 'C-38028r618789_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000259-GPOS-00100'
   tag gid: 'V-234840'
   tag rid: 'SV-234840r991560_rule'
   tag stig_id: 'SLES-15-010357'
-  tag gtitle: 'SRG-OS-000259-GPOS-00100'
   tag fix_id: 'F-37991r618790_fix'
-  tag 'documentable'
   tag cci: ['CCI-001499']
   tag nist: ['CM-5 (6)']
+  tag 'host'
+  tag 'container'
+
+  failing_files = command("find -L #{input('system_command_dirs').join(' ')} -perm /0022 -exec ls -d {} \\;").stdout.split("\n")
+
+  describe 'System commands' do
+    it "should have mode '0755' or less permissive" do
+      expect(failing_files).to be_empty, "Files with excessive permissions:\n\t- #{failing_files.join("\n\t- ")}"
+    end
+  end
 end

@@ -11,13 +11,13 @@ Note: If the system does not have X Windows installed, this requirement is Not A
 
 Check that the lock screen is set to a publicly viewable image by running the following command:
 
-> sudo gsettings get org.gnome.desktop.screensaver picture-uri 
+> sudo gsettings get org.gnome.desktop.screensaver picture-uri
 'file:///usr/share/wallpapers/SLE-default-static.xml'
 
 If nothing is returned or "org.gnome.desktop.screensaver" is not set, this is a finding.)
   desc 'fix', %q(Note: If the system does not have X Windows installed, this requirement is Not Applicable.
 
-Configure the SUSE operating system to use a publically viewable image by finding the Settings menu and then navigate to the Background selection section: 
+Configure the SUSE operating system to use a publically viewable image by finding the Settings menu and then navigate to the Background selection section:
 
 - Click "Activities" on the top left.
 - Click "Show Applications" at the bottom of the Activities menu.
@@ -36,4 +36,25 @@ Configure the SUSE operating system to use a publically viewable image by findin
   tag 'documentable'
   tag cci: ['CCI-000060']
   tag nist: ['AC-11 (1)']
+  tag 'host'
+
+  only_if('This requirement is Not Applicable in the container', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  no_gui = command('ls /usr/share/xsessions/*').stderr.match?(/No such file or directory/)
+
+  if no_gui
+    impact 0.0
+    describe 'The system does not have a GUI Desktop is installed; this control is Not Applicable' do
+      skip 'A GUI desktop is not installed; this control is Not Applicable.'
+    end
+  else
+
+    profile = command('grep system-db /etc/dconf/profile/user').stdout.strip.match(/:(\S+)$/)[1]
+
+    describe command("grep ^picture-uri /etc/dconf/db/#{profile}.d/locks/*") do
+      its('stdout.strip') { should match(%r{^/org/gnome/desktop/screensaver/picture-uri}) }
+    end
+  end
 end

@@ -1,0 +1,9 @@
+---
+# Pass/fail gate for the hardened Iron Bank SUSE BCI container scan.
+#
+# compliance.min is 0 while the profile is stubbed. Container scans naturally
+# score differently from VM scans (many host/kernel/bootloader controls are
+# not applicable in a container); raise this toward the compliance a hardened
+# BCI image should achieve as controls and container-aware inputs are added.
+error.total.max: 0
+compliance.min: 0

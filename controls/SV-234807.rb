@@ -46,14 +46,44 @@ By using this IS (which includes any device attached to this IS), you consent to
 
 -Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details."'
   impact 0.5
-  tag check_id: 'C-37995r618690_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000024-GPOS-00007'
+  tag satisfies: ['SRG-OS-000023-GPOS-00006', 'SRG-OS-000228-GPOS-00088']
   tag gid: 'V-234807'
   tag rid: 'SV-234807r958392_rule'
   tag stig_id: 'SLES-15-010060'
-  tag gtitle: 'SRG-OS-000024-GPOS-00007'
   tag fix_id: 'F-37958r618691_fix'
-  tag 'documentable'
-  tag cci: ['CCI-000050']
-  tag nist: ['AC-8 b']
+  tag cci: ['CCI-000048', 'CCI-001384', 'CCI-001385', 'CCI-001386', 'CCI-001387', 'CCI-001388', 'CCI-000050']
+  tag nist: ['AC-8 a', 'AC-8 c 1', 'AC-8 c 2', 'AC-8 c 3', 'AC-8 b']
+  tag 'host'
+
+  only_if('Control not applicable within a container', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  no_gui = command('ls /usr/share/xsessions/*').stderr.match?(/No such file or directory/)
+
+  if no_gui
+    impact 0.0
+    describe 'A GUI desktop is not installed; this control is Not Applicable.' do
+      skip 'A GUI desktop is not installed; this control is Not Applicable.'
+    end
+  else
+    banner_file = file('/etc/gdm/banner')
+
+    describe banner_file do
+      it { should exist }
+    end
+
+    if banner_file.exist?
+      banner = banner_file.content.gsub(/[\r\n\s]/, '')
+      expected_banner = input('banner_message_text_gui').gsub(/[\r\n\s]/, '')
+
+      describe 'The GUI Login Banner' do
+        it 'is set to the standard banner and has the correct text' do
+          expect(banner).to eq(expected_banner), 'Banner does not match expected text'
+        end
+      end
+    end
+  end
 end

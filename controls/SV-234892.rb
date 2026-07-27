@@ -14,14 +14,26 @@ If any results are returned that are not associated with a system account, this 
 
 The DOD requirement is 60 days.'
   impact 0.5
-  tag check_id: 'C-38080r618945_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000076-GPOS-00044'
   tag gid: 'V-234892'
   tag rid: 'SV-234892r1038967_rule'
   tag stig_id: 'SLES-15-020230'
-  tag gtitle: 'SRG-OS-000076-GPOS-00044'
   tag fix_id: 'F-38043r986491_fix'
-  tag 'documentable'
-  tag cci: ['CCI-004066', 'CCI-000199']
-  tag nist: ['IA-5 (1) (h)', 'IA-5 (1) (d)']
+  tag cci: ['CCI-000199', 'CCI-004066']
+  tag nist: ['IA-5 (1) (d)', 'IA-5 (1) (h)']
+  tag 'host'
+  tag 'container'
+
+  value = input('pass_max_days')
+
+  bad_users = users.where { uid >= 1000 }.where { maxdays.to_i > value }.usernames
+  in_scope_users = bad_users - input('exempt_home_users')
+
+  describe 'Users should not' do
+    it "be able to retain passwords for more than #{value} days" do
+      failure_message = "The following users can retain their password longer than #{value} days: #{in_scope_users.join(', ')}"
+      expect(in_scope_users).to be_empty, failure_message
+    end
+  end
 end

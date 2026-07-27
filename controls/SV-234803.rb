@@ -27,7 +27,7 @@ Check the "motd" (message of the day) file to verify that it contains the DOD re
 
 > more /etc/issue
 
-The output must display the following DOD-required banner text: 
+The output must display the following DOD-required banner text:
 
 "You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
 
@@ -69,7 +69,21 @@ By using this IS (which includes any device attached to this IS), you consent to
   tag stig_id: 'SLES-15-010020'
   tag gtitle: 'SRG-OS-000023-GPOS-00006'
   tag fix_id: 'F-37954r951622_fix'
+  tag satisfies: ['SRG-OS-000023-GPOS-00006', 'SRG-OS-000228-GPOS-00088']
   tag 'documentable'
   tag cci: ['CCI-000048']
   tag nist: ['AC-8 a']
+
+  only_if('Control not applicable within a container or when GDM is not installed', impact: 0.0) do
+    !%w[docker podman kubepods lxc].include?(virtualization.system) && command('rpm -q gdm').exit_status.zero?
+  end
+
+  banner = file('/etc/issue').content.gsub(/[\r\n\s]/, '')
+  expected_banner = input('banner_message_text_ral').gsub(/[\r\n\s]/, '')
+
+  describe 'The console login banner' do
+    it 'is set to the standard banner and has the correct text' do
+      expect(banner).to eq(expected_banner), 'Banner does not match expected text'
+    end
+  end
 end

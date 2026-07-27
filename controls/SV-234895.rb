@@ -17,14 +17,18 @@ Edit "/etc/pam.d/common-password" and edit the line containing "pam_cracklib.so"
 
 The DOD standard requires a minimum 15-character password length.'
   impact 0.5
-  tag check_id: 'C-38083r618954_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000078-GPOS-00046'
   tag gid: 'V-234895'
   tag rid: 'SV-234895r1009632_rule'
   tag stig_id: 'SLES-15-020260'
-  tag gtitle: 'SRG-OS-000078-GPOS-00046'
   tag fix_id: 'F-38046r986493_fix'
-  tag 'documentable'
-  tag cci: ['CCI-004066', 'CCI-000205']
-  tag nist: ['IA-5 (1) (h)', 'IA-5 (1) (a)']
+  tag cci: ['CCI-000205', 'CCI-004066']
+  tag nist: ['IA-5 (1) (a)', 'IA-5 (1) (h)']
+  tag 'host'
+  tag 'container'
+
+  describe pam('/etc/pam.d/common-password') do
+    its('lines') { should match_pam_rule('password requisite pam_cracklib.so').all_with_integer_arg('minlen', '>=', input('pass_min_len')) }
+  end
 end

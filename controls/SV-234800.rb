@@ -31,14 +31,39 @@ If the release is not supported by the vendor, this is a finding.'
 
 If the system requires Long-Term Service Pack Support (LTSS), obtain the correct LTSS subscription for the system.'
   impact 0.7
-  tag check_id: 'C-37988r618669_chk'
   tag severity: 'high'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234800'
   tag rid: 'SV-234800r1155796_rule'
   tag stig_id: 'SLES-15-010000'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-37951r618670_fix'
-  tag 'documentable'
-  tag cci: ['CCI-001230']
-  tag nist: ['SI-2 d']
+  tag cci: ['CCI-000366', 'CCI-001230']
+  tag nist: ['CM-6 b', 'SI-2 d']
+  tag 'host'
+  tag 'container'
+
+  release = os.release
+
+  # Match both the VM dotted form (15.6) and the BCI container form (15-SP6).
+  EOMS_DATE = {
+    /^15[.-](SP)?1\b/ => 'January 31, 2024',
+    /^15[.-](SP)?2\b/ => 'December 31, 2024',
+    /^15[.-](SP)?3\b/ => 'December 31, 2025',
+    /^15[.-](SP)?4\b/ => 'December 31, 2026',
+    /^15[.-](SP)?5\b/ => 'December 31, 2027',
+    /^15[.-](SP)?6\b/ => 'December 31, 2028',
+    /^15[.-](SP)?7\b/ => 'July 31, 2034'
+  }.find { |k, _v| k.match(release) }&.last
+
+  describe "The release \"#{release}\"" do
+    if EOMS_DATE.nil?
+      it 'is a supported release' do
+        expect(EOMS_DATE).not_to be_nil, "Release '#{release}' has no specified support window"
+      end
+    else
+      it 'is still within the support window' do
+        expect(Date.today).to be <= Date.parse(EOMS_DATE)
+      end
+    end
+  end
 end

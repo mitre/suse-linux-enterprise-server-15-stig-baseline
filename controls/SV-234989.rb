@@ -39,21 +39,40 @@ system-db:local
 [org/gnome/settings-daemon/plugins/media-keys]
 logout=''
 
-/etc/dconf/db/local.d/locks/01-fips-locks 
+/etc/dconf/db/local.d/locks/01-fips-locks
 /org/gnome/settings-daemon/plugins/media-keys/logout
 
-4. Update the dconf database: 
+4. Update the dconf database:
 
 > sudo dconf update"
   impact 0.7
-  tag check_id: 'C-38177r1155790_chk'
   tag severity: 'high'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234989'
   tag rid: 'SV-234989r1155792_rule'
   tag stig_id: 'SLES-15-040061'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38140r1155791_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('This requirement is Not Applicable in the container', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  no_gui = command('ls /usr/share/xsessions/*').stderr.match?(/No such file or directory/)
+
+  if no_gui
+    impact 0.0
+    describe 'The system does not have a GUI installed, this requirement is Not Applicable.' do
+      skip 'A GUI desktop is not installed; this control is Not Applicable.'
+    end
+  else
+    describe command('gsettings get org.gnome.settings-daemon.plugins.media-keys logout') do
+      its('stdout.strip') { should cmp "''" }
+    end
+    describe command('gsettings writable org.gnome.settings-daemon.plugins.media-keys logout') do
+      its('stdout.strip') { should cmp 'false' }
+    end
+  end
 end

@@ -14,14 +14,30 @@ If any of the aforementioned directories are found to be group-writable or world
 
 > sudo find /lib /lib64 /usr/lib /usr/lib64 -perm /022 -type d -exec chmod 755 '{}' \\;"
   impact 0.5
-  tag check_id: 'C-38023r618774_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000259-GPOS-00100'
   tag gid: 'V-234835'
   tag rid: 'SV-234835r991560_rule'
   tag stig_id: 'SLES-15-010352'
-  tag gtitle: 'SRG-OS-000259-GPOS-00100'
   tag fix_id: 'F-37986r618775_fix'
-  tag 'documentable'
   tag cci: ['CCI-001499']
   tag nist: ['CM-5 (6)']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  mode_for_libs = input('file_modes')['max'][:system_libs]
+
+  overly_permissive_libs = input('system_libraries').select { |lib|
+    file(lib).more_permissive_than?(mode_for_libs)
+  }
+
+  describe 'System libraries' do
+    it "should not have modes set higher than #{mode_for_libs}" do
+      fail_msg = "Overly permissive system libraries:\n\t- #{overly_permissive_libs.join("\n\t- ")}"
+      expect(overly_permissive_libs).to be_empty, fail_msg
+    end
+  end
 end

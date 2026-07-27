@@ -17,14 +17,40 @@ Re-mount the filesystems.
 
 > sudo mount -o remount /home'
   impact 0.5
-  tag check_id: 'C-38186r619263_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234998'
   tag rid: 'SV-234998r991589_rule'
   tag stig_id: 'SLES-15-040140'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38149r619264_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  option = 'nosuid'
+  exempt_home_users = input('exempt_home_users')
+  uid_min = login_defs.read_params['UID_MIN'].to_i
+  uid_min = 1000 if uid_min.zero?
+
+  home_dirs = passwd.where { uid.to_i >= uid_min && shell !~ /nologin/ && !exempt_home_users.include?(user) }.homes.uniq
+  home_mounts = home_dirs.map { |dir| command("findmnt -nkT #{dir} -o TARGET").stdout.strip }.reject(&:empty?).uniq
+  applicable_mounts = home_mounts.reject { |mnt| mnt == '/' }
+
+  if applicable_mounts.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'User home directories are not on a separate file system (mounted under "/")'
+    end
+  else
+    failing_mounts = applicable_mounts.reject { |mnt| mount(mnt).options.include?(option) }
+    describe 'File systems containing user home directories' do
+      it "should be mounted with '#{option}' set" do
+        expect(failing_mounts).to be_empty, "Home directory file systems without '#{option}' set:\n\t- #{failing_mounts.join("\n\t- ")}"
+      end
+    end
+  end
 end

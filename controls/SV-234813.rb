@@ -1,11 +1,11 @@
 control 'SV-234813' do
   title 'The SUSE operating system must initiate a session lock after a 10-minute period of inactivity.'
-  desc "A session time-out lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system but does not log out because of the temporary nature of the absence. 
+  desc "A session time-out lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system but does not log out because of the temporary nature of the absence.
 
 Rather than relying on the users to manually lock their SUSE operating system session prior to vacating the vicinity, the SUSE operating system needs to be able to identify when a user's session has idled and take action to initiate the session lock.
 
 The session lock is implemented at the point where session activity can be determined and/or controlled."
-  desc 'check', 'Verify the SUSE operating system must initiate a session logout after a 10-minute period of inactivity for all connection types. 
+  desc 'check', 'Verify the SUSE operating system must initiate a session logout after a 10-minute period of inactivity for all connection types.
 
 Check the proper script exists to kill an idle session after a 10-minute period of inactivity with the following command:
 
@@ -25,14 +25,27 @@ Set the proper permissions for the "/etc/profile.d/autologout.sh" file with the 
 
 > sudo chmod +x /etc/profile.d/autologout.sh'
   impact 0.5
-  tag check_id: 'C-38001r1009559_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000029-GPOS-00010'
+  tag satisfies: ['SRG-OS-000029-GPOS-00010', 'SRG-OS-000031-GPOS-00012', 'SRG-OS-000480-GPOS-00227']
   tag gid: 'V-234813'
   tag rid: 'SV-234813r1009561_rule'
   tag stig_id: 'SLES-15-010130'
-  tag gtitle: 'SRG-OS-000029-GPOS-00010'
   tag fix_id: 'F-37964r1009560_fix'
-  tag 'documentable'
   tag cci: ['CCI-000057']
   tag nist: ['AC-11 a']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  timeout = input('system_inactivity_timeout')
+
+  describe file('/etc/profile.d/autologout.sh') do
+    it { should exist }
+    its('content') { should match(/^TMOUT=#{timeout}$/) }
+    its('content') { should match(/^readonly TMOUT$/) }
+    its('content') { should match(/^export TMOUT$/) }
+  end
 end

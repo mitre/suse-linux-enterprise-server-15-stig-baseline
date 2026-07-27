@@ -15,14 +15,18 @@ Add or update the following variable in "/etc/login.defs" to match the line belo
 
 FAIL_DELAY 4'
   impact 0.5
-  tag check_id: 'C-38170r619215_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00226'
   tag gid: 'V-234982'
   tag rid: 'SV-234982r991588_rule'
   tag stig_id: 'SLES-15-040000'
-  tag gtitle: 'SRG-OS-000480-GPOS-00226'
   tag fix_id: 'F-38133r619216_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+  tag 'container'
+
+  describe login_defs do
+    its('FAIL_DELAY.to_i') { should cmp >= input('login_prompt_delay') }
+  end
 end

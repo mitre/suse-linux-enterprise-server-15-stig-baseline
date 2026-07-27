@@ -1,0 +1,7 @@
+---
+# Inputs applied to every Test Kitchen verify run (VM suites).
+#
+# This profile was stubbed with `saf generate inspec_profile` and does not yet
+# define inputs in inspec.yml. Add profile inputs here as controls are written
+# (e.g. toggles for environment-specific or disruptive checks). Values set here
+# override the defaults declared in inspec.yml at scan time.

@@ -3,13 +3,13 @@ control 'SV-234819' do
   desc 'To mitigate the risk of unauthorized access to sensitive information by entities that have been issued certificates by DoD-approved PKIs, all DoD systems (e.g., web servers and web portals) must be properly configured to incorporate access control methods that do not rely solely on the possession of a certificate for access. Successful authentication must not automatically give an entity access to an asset or security boundary. Authorization procedures and controls must be implemented to ensure each authenticated entity also has a validated and current authorization. Authorization is the process of determining whether an entity, once authenticated, is permitted to access a specific asset. Information systems use access control policies and enforcement mechanisms to implement this requirement.
 
 Access control policies include identity-based policies, role-based policies, and attribute-based policies. Access enforcement mechanisms include access control lists, access control matrices, and cryptography. These policies and mechanisms must be employed by the application to control access between users (or processes acting on behalf of users) and objects (e.g., devices, files, records, processes, programs, and domains) in the information system.'
-  desc 'check', 'Verify that the SUSE operating system has set an encrypted root password. 
+  desc 'check', 'Verify that the SUSE operating system has set an encrypted root password.
 
 Note: If the system does not use a BIOS this requirement is Not Applicable.
 
 Check that the encrypted password is set for root with the following command:
 
-> sudo cat /boot/grub2/grub.cfg | grep -i password 
+> sudo cat /boot/grub2/grub.cfg | grep -i password
 
 password_pbkdf2 root grub.pbkdf2.sha512.10000.VeryLongString
 
@@ -45,4 +45,16 @@ Generate an updated "grub.conf" file with the new password using the following c
   tag 'documentable'
   tag cci: ['CCI-000213']
   tag nist: ['AC-3']
+  tag 'host'
+
+  only_if('Control not applicable within a container without sudo enabled', impact: 0.0) do
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  end
+
+  grubfile = file(input('grub_conf_path'))
+
+  describe grubfile do
+    it { should exist }
+    its('content') { should match(/^\s*password_pbkdf2\s+\S+\s+grub\.pbkdf2\.sha512\./) }
+  end
 end

@@ -15,14 +15,23 @@ If "remote_server" is not set to an external server or media, or is commented ou
 
 remote_server = [IP ADDRESS]'
   impact 0.3
-  tag check_id: 'C-38156r1009568_chk'
   tag severity: 'low'
+  tag gtitle: 'SRG-OS-000342-GPOS-00133'
+  tag satisfies: ['SRG-OS-000342-GPOS-00133', 'SRG-OS-000479-GPOS-00224']
   tag gid: 'V-234968'
   tag rid: 'SV-234968r1009570_rule'
   tag stig_id: 'SLES-15-030690'
-  tag gtitle: 'SRG-OS-000342-GPOS-00133'
   tag fix_id: 'F-38119r1009569_fix'
-  tag 'documentable'
   tag cci: ['CCI-001851']
   tag nist: ['AU-4 (1)']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe parse_config_file('/etc/audit/audisp-remote.conf') do
+    its('remote_server') { should_not be_nil }
+    its('remote_server') { should_not cmp '' }
+  end
 end

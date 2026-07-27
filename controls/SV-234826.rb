@@ -6,9 +6,7 @@ Remote access (e.g., RDP) is access to DOD nonpublic information systems by an a
 
 Cryptographic mechanisms used for protecting the integrity of information include, for example, signed hash functions using asymmetric cryptography enabling distribution of the public key to verify the hash information while maintaining the confidentiality of the secret key used to generate the hash.
 
-The system will attempt to use the first hash presented by the client that matches the server list. Listing the values "strongest to weakest" is a method to ensure the use of the strongest hash available to secure the SSH connection.
-
-'
+The system will attempt to use the first hash presented by the client that matches the server list. Listing the values "strongest to weakest" is a method to ensure the use of the strongest hash available to secure the SSH connection.'
   desc 'check', %q(Verify the SUSE operating system SSH daemon is configured to only use MACs that employ FIPS 140-2 approved hashes.
 
 Check that the SSH daemon is configured to only use MACs that employ FIPS 140-2 approved hashes with the following command:
@@ -31,8 +29,17 @@ MACs hmac-sha2-512,hmac-sha2-256'
   tag stig_id: 'SLES-15-010270'
   tag gtitle: 'SRG-OS-000125-GPOS-00065'
   tag fix_id: 'F-37977r618748_fix'
-  tag satisfies: ['SRG-OS-000125-GPOS-00065', 'SRG-OS-000394-GPOS-00174']
   tag 'documentable'
   tag cci: ['CCI-000877', 'CCI-001453', 'CCI-003123']
   tag nist: ['MA-4 c', 'AC-17 (2)', 'MA-4 (6)']
+  tag 'host'
+  tag 'container-conditional'
+
+  only_if('This control is Not Applicable to containers without SSH installed', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system) || directory('/etc/ssh').exist?
+  }
+
+  describe sshd_config do
+    its('MACs') { should cmp input('approved_ssh_macs') }
+  end
 end

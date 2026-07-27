@@ -1,7 +1,7 @@
 control 'SV-234966' do
   title 'The audit-audispd-plugins must be installed on the SUSE operating system.'
   desc 'The audit-audispd-plugins must be installed on the SUSE operating system.'
-  desc 'check', 'Verify that the "audit-audispd-plugins" package is installed on the SUSE operating system. 
+  desc 'check', 'Verify that the "audit-audispd-plugins" package is installed on the SUSE operating system.
 
 Check that the "audit-audispd-plugins" package is installed on the SUSE operating system with the following command:
 
@@ -22,4 +22,13 @@ If the "audit-audispd-plugins" package is not installed, this is a finding.'
   tag 'documentable'
   tag cci: ['CCI-001851']
   tag nist: ['AU-4 (1)']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe package('audit-audispd-plugins') do
+    it { should be_installed }
+  end
 end

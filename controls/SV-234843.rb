@@ -31,4 +31,15 @@ If any system commands directories are returned, this is a finding.)
   tag 'documentable'
   tag cci: ['CCI-001499']
   tag nist: ['CM-5 (6)']
+
+  dirs = input('system_command_dirs').select { |d| file(d).exist? }
+
+  find_cmd = "find -L #{dirs.join(' ')} ! -user root -type d -exec stat -c '%n %U' '{}' \\;"
+  non_root_owned_dirs = command(find_cmd).stdout.strip.split("\n").reject(&:empty?)
+
+  describe 'System command directories not owned by root' do
+    it 'should have every system command directory owned by root' do
+      expect(non_root_owned_dirs).to be_empty, "Directories not owned by root (run: chown root <dir>):\n\t- #{non_root_owned_dirs.join("\n\t- ")}"
+    end
+  end
 end

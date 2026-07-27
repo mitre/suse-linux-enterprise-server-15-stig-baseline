@@ -18,14 +18,30 @@ If the service is active and is not documented, this is a finding.'
 
 If kernel core dumps are required, document the need with the ISSO.'
   impact 0.5
-  tag check_id: 'C-38191r619278_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-235003'
   tag rid: 'SV-235003r991589_rule'
   tag stig_id: 'SLES-15-040190'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38154r619279_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
+  tag legacy: []
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  if input('core_dumps_required')
+    impact 0.0
+    describe 'N/A' do
+      skip "Profile inputs indicate that this parameter's setting is a documented operational requirement"
+    end
+  else
+    describe service('kdump') do
+      it { should_not be_running }
+      it { should_not be_enabled }
+    end
+  end
 end

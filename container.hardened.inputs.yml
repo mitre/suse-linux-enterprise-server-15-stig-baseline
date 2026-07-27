@@ -1,0 +1,9 @@
+# Inputs for the hardened Iron Bank SUSE BCI container suite.
+#
+# Containers lack a running init system, kernel, bootloader, and many services a
+# full STIG assumes, so a number of controls are not applicable in this context.
+# As controls are written, set container-aware input toggles here so the
+# container scan reports cleanly rather than erroring on absent subsystems.
+#
+# This profile is still stubbed (saf generate); no inputs are defined in
+# inspec.yml yet, so this file is intentionally minimal for now.

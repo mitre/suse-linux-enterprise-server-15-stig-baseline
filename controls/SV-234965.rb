@@ -29,14 +29,37 @@ If audit records are stored on a partition made specifically for audit records, 
 
 If audit records are not stored on a partition made specifically for audit records, a new partition with sufficient amount of space will need be to be created. The new partition can be created using the "YaST2 - Partitioner" program on the system.'
   impact 0.5
-  tag check_id: 'C-38153r619164_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000341-GPOS-00132'
   tag gid: 'V-234965'
   tag rid: 'SV-234965r958752_rule'
   tag stig_id: 'SLES-15-030660'
-  tag gtitle: 'SRG-OS-000341-GPOS-00132'
   tag fix_id: 'F-38116r619165_fix'
-  tag 'documentable'
-  tag cci: ['CCI-001849']
-  tag nist: ['AU-4']
+  tag cci: ['CCI-001849', 'CCI-001851']
+  tag nist: ['AU-4', 'AU-4 (1)']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  audit_log_dir = command("dirname #{auditd_conf.log_file}").stdout.strip
+
+  describe file(audit_log_dir) do
+    it { should exist }
+    it { should be_directory }
+  end
+
+  # Fetch partition sizes in 1K blocks for consistency
+  partition_info = command("df -B 1K #{audit_log_dir}").stdout.split("\n")
+  partition_sz_arr = partition_info.last.gsub(/\s+/m, ' ').strip.split
+
+  # Get unused space percentage
+  percentage_space_unused = (100 - partition_sz_arr[4].to_i)
+
+  describe "auditd_conf's space_left threshold" do
+    it 'should be under the amount of space currently available (in 1K blocks) for the audit log directory' do
+      expect(auditd_conf.space_left.to_i).to be <= percentage_space_unused
+    end
+  end
 end

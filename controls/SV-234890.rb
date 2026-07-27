@@ -16,14 +16,24 @@ Change the minimum time period between password changes for each [USER] account 
 
 > sudo passwd -n 1 [USER]'
   impact 0.5
-  tag check_id: 'C-38078r1184464_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000075-GPOS-00043'
   tag gid: 'V-234890'
   tag rid: 'SV-234890r1184465_rule'
   tag stig_id: 'SLES-15-020210'
-  tag gtitle: 'SRG-OS-000075-GPOS-00043'
   tag fix_id: 'F-38041r618940_fix'
-  tag 'documentable'
-  tag cci: ['CCI-004066', 'CCI-000198']
-  tag nist: ['IA-5 (1) (h)', 'IA-5 (1) (d)']
+  tag cci: ['CCI-000198', 'CCI-004066']
+  tag nist: ['IA-5 (1) (d)', 'IA-5 (1) (h)']
+  tag 'host'
+  tag 'container'
+
+  bad_users = users.where { uid >= 1000 }.where { mindays.to_i < 1 }.usernames
+  in_scope_users = bad_users - input('exempt_home_users')
+
+  describe 'Users should not' do
+    it 'be able to change their password more than once in a 24 hour period' do
+      failure_message = "The following users can update their password more than once a day: #{in_scope_users.join(', ')}"
+      expect(in_scope_users).to be_empty, failure_message
+    end
+  end
 end

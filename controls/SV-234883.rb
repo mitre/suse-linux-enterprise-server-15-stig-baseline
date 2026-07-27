@@ -15,14 +15,18 @@ If the command does not return anything, the returned line is commented out, or 
 
 Edit "/etc/pam.d/common-password" and edit the line containing "pam_cracklib.so" to contain the option "lcredit=-1" after the third column.'
   impact 0.5
-  tag check_id: 'C-38071r618918_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000070-GPOS-00038'
   tag gid: 'V-234883'
   tag rid: 'SV-234883r1009622_rule'
   tag stig_id: 'SLES-15-020140'
-  tag gtitle: 'SRG-OS-000070-GPOS-00038'
   tag fix_id: 'F-38034r618919_fix'
-  tag 'documentable'
-  tag cci: ['CCI-004066', 'CCI-000193']
-  tag nist: ['IA-5 (1) (h)', 'IA-5 (1) (a)']
+  tag cci: ['CCI-000193', 'CCI-004066']
+  tag nist: ['IA-5 (1) (a)', 'IA-5 (1) (h)']
+  tag 'host'
+  tag 'container'
+
+  describe pam('/etc/pam.d/common-password') do
+    its('lines') { should match_pam_rule('password requisite pam_cracklib.so').all_with_integer_arg('lcredit', '<=', input('lcredit')) }
+  end
 end

@@ -27,14 +27,34 @@ Edit the /etc/sudoers file with the following command:
 Add or modify the following line:
 @includedir /etc/sudoers.d'
   impact 0.5
-  tag check_id: 'C-55160r833004_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-251723'
   tag rid: 'SV-251723r991589_rule'
   tag stig_id: 'SLES-15-020099'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-55114r833005_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('Control not applicable within a container', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  include_directives = command('grep -i include /etc/sudoers').stdout.strip
+
+  if include_directives.empty?
+    impact 0.0
+    describe 'The `include` and `includedir` directives are not present in /etc/sudoers' do
+      skip 'No `include` or `includedir` directives are present in /etc/sudoers; this requirement is Not Applicable.'
+    end
+  else
+    describe command('grep include /etc/sudoers') do
+      its('stdout.strip') { should eq '@includedir /etc/sudoers.d' }
+    end
+
+    describe command('grep -r include /etc/sudoers.d') do
+      its('stdout.strip') { should be_empty }
+    end
+  end
 end

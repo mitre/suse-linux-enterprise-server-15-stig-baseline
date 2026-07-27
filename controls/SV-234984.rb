@@ -5,21 +5,29 @@ control 'SV-234984' do
 
 Check the system for the existence of these files with the following command:
 
-> sudo find / \( -path /.snapshots -o -path /sys -o -path /proc \\) -prune -o -name '.shosts' -print
+> sudo find / \\( -path /.snapshots -o -path /sys -o -path /proc \\) -prune -o -name '.shosts' -print
 
 If any ".shosts" files are found on the system, this is a finding.)
   desc 'fix', 'Remove any ".shosts" files found on the SUSE operating system.
 
 > sudo rm /[path]/[to]/[file]/.shosts'
   impact 0.7
-  tag check_id: 'C-38172r619221_chk'
   tag severity: 'high'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-234984'
   tag rid: 'SV-234984r991589_rule'
   tag stig_id: 'SLES-15-040020'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38135r619222_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+  tag 'container'
+
+  shosts_files = command('find / -xdev -xautofs -name .shosts').stdout.strip.split("\n")
+
+  describe 'The RHEL8 filesystem' do
+    it 'should not have any .shosts files present' do
+      expect(shosts_files).to be_empty, "Discovered .shosts files:\n\t- #{shosts_files.join("\n\t- ")}"
+    end
+  end
 end

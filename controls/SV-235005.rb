@@ -13,14 +13,25 @@ If a separate entry for "/var" is not in use, this is a finding.'
 
 Migrate "/var" onto the separate file system/partition.'
   impact 0.3
-  tag check_id: 'C-38193r619284_chk'
   tag severity: 'low'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-235005'
   tag rid: 'SV-235005r991589_rule'
   tag stig_id: 'SLES-15-040210'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38156r619285_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe mount('/var') do
+    it { should be_mounted }
+  end
+
+  describe etc_fstab.where { mount_point == '/var' } do
+    it { should exist }
+  end
 end

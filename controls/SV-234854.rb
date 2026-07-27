@@ -8,9 +8,7 @@ A privileged account is defined as an information system account with authorizat
 
 Remote access is access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, nonorganization-controlled network. Remote access methods include, for example, dial-up, broadband, and wireless.
 
-This requirement only applies to components where this is specific to the function of the device or has the concept of an organizational user (e.g., VPN, proxy capability). This does not apply to authentication for the purpose of configuring the device itself (management).
-
-'
+This requirement only applies to components where this is specific to the function of the device or has the concept of an organizational user (e.g., VPN, proxy capability). This does not apply to authentication for the purpose of configuring the device itself (management).'
   desc 'check', 'Verify the SUSE operating system has the packages required for multifactor authentication installed.
 
 Check for the presence of the packages required to support multifactor authentication with the following commands:
@@ -63,6 +61,22 @@ Additional information on the configuration of multifactor authentication on the
   tag fix_id: 'F-38005r618832_fix'
   tag satisfies: ['SRG-OS-000375-GPOS-00160', 'SRG-OS-000376-GPOS-00161', 'SRG-OS-000377-GPOS-00162']
   tag 'documentable'
-  tag cci: ['CCI-004046', 'CCI-001953', 'CCI-001954', 'CCI-001948']
-  tag nist: ['IA-2 (6) (a)', 'IA-2 (12)', 'IA-2 (12)', 'IA-2 (11)']
+  tag cci: ['CCI-001948', 'CCI-001953', 'CCI-004046', 'CCI-001954']
+  tag nist: ['IA-2 (11)', 'IA-2 (12)', 'IA-2 (6) (a)']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  if input('smart_card_enabled')
+    describe package('opensc') do
+      it { should be_installed }
+    end
+  else
+    impact 0.0
+    describe 'The system is not smartcard enabled thus this control is Not Applicable' do
+      skip 'The system is not using Smartcards / PIVs to fulfil the MFA requirement; this control is Not Applicable.'
+    end
+  end
 end

@@ -6,9 +6,7 @@ Remote access is access to DOD nonpublic information systems by an authorized us
 
 Encryption provides a means to secure the remote connection to prevent unauthorized access to the data traversing the remote access connection (e.g., RDP), thereby providing a degree of confidentiality. The encryption strength of a mechanism is selected based on the security categorization of the information.
 
-The system will attempt to use the first cipher presented by the client that matches the server list. Listing the values "strongest to weakest" is a method to ensure the use of the strongest cipher available to secure the SSH connection.
-
-'
+The system will attempt to use the first cipher presented by the client that matches the server list. Listing the values "strongest to weakest" is a method to ensure the use of the strongest cipher available to secure the SSH connection.'
   desc 'check', %q(Verify the SUSE operating system implements DOD-approved encryption to protect the confidentiality of SSH remote connections.
 
 Check the SSH daemon configuration for allowed ciphers with the following command:
@@ -33,8 +31,16 @@ Restart the SSH daemon:
   tag stig_id: 'SLES-15-010160'
   tag gtitle: 'SRG-OS-000033-GPOS-00014'
   tag fix_id: 'F-37967r618718_fix'
-  tag satisfies: ['SRG-OS-000033-GPOS-00014', 'SRG-OS-000125-GPOS-00065', 'SRG-OS-000250-GPOS-00093', 'SRG-OS-000393-GPOS-00173']
   tag 'documentable'
   tag cci: ['CCI-000068']
   tag nist: ['AC-17 (2)']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe sshd_config do
+    its('Ciphers') { should cmp 'aes256-ctr,aes192-ctr,aes128-ctr' }
+  end
 end

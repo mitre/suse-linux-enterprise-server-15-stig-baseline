@@ -72,4 +72,15 @@ Users must log out and back in again before the system-wide settings take effect
   tag 'documentable'
   tag cci: ['CCI-001384', 'CCI-001385', 'CCI-001386', 'CCI-001387', 'CCI-001388']
   tag nist: ['AC-8 c 1', 'AC-8 c 2', 'AC-8 c 2', 'AC-8 c 2', 'AC-8 c 3']
+
+  if package('gdm').installed?
+    describe command('grep -rh banner-message-enable /etc/dconf/db/gdm.d/') do
+      its('stdout') { should match(/^\s*banner-message-enable\s*=\s*true\s*$/) }
+    end
+  else
+    impact 0.0
+    describe 'GNOME Display Manager (gdm)' do
+      skip 'No graphical user interface installed; this requirement is Not Applicable.'
+    end
+  end
 end

@@ -1,11 +1,9 @@
 control 'SV-234859' do
   title 'FIPS 140-2 mode must be enabled on the SUSE operating system.'
-  desc 'Use of weak or untested encryption algorithms undermines the purposes of using encryption to protect data. The SUSE operating system must implement cryptographic modules adhering to the higher standards approved by the federal government since this provides assurance they have been tested and validated.
-
-'
+  desc 'Use of weak or untested encryption algorithms undermines the purposes of using encryption to protect data. The SUSE operating system must implement cryptographic modules adhering to the higher standards approved by the federal government since this provides assurance they have been tested and validated.'
   desc 'check', 'Verify the SUSE operating system is running in FIPS mode by running the following command.
 
-> cat /proc/sys/crypto/fips_enabled 
+> cat /proc/sys/crypto/fips_enabled
 
 1
 
@@ -23,8 +21,17 @@ http://csrc.nist.gov/groups/STM/cmvp/documents/140-1/140sp/140sp2435.pdf'
   tag stig_id: 'SLES-15-010510'
   tag gtitle: 'SRG-OS-000396-GPOS-00176'
   tag fix_id: 'F-38010r618847_fix'
-  tag satisfies: ['SRG-OS-000396-GPOS-00176', 'SRG-OS-000478-GPOS-00223']
+  tag satisfies: ['SRG-OS-000396-GPOS-00176', 'SRG-OS-000393-GPOS-00173', 'SRG-OS-000394-GPOS-00174', 'SRG-OS-000478-GPOS-00223']
   tag 'documentable'
-  tag cci: ['CCI-002450']
-  tag nist: ['SC-13 b']
+  tag cci: ['CCI-002450', 'CCI-002890', 'CCI-003123']
+  tag nist: ['SC-13 b', 'MA-4 (6)']
+  tag 'host'
+
+  only_if('This control is Not Applicable to containers', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe kernel_parameter('crypto.fips_enabled') do
+    its('value') { should cmp 1 }
+  end
 end

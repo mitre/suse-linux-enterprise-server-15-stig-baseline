@@ -27,4 +27,19 @@ If any world-writable directories are not owned by root, sys, bin, or an applica
   tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+
+  only_if('Control not applicable within a container', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  allowed_groups = %w[root sys bin] + input('application_groups')
+  ww_dirs = command('find / -perm -002 -type d 2>/dev/null').stdout.split("\n")
+  failing_dirs = ww_dirs.reject { |dir| allowed_groups.include?(file(dir).group) }
+
+  describe 'World-writable directories' do
+    it 'should be group-owned by root, sys, bin, or an application group' do
+      expect(failing_dirs).to be_empty, "World-writable directories not group-owned by an allowed group:\n\t- #{failing_dirs.join("\n\t- ")}"
+    end
+  end
 end

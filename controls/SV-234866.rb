@@ -16,7 +16,7 @@ Ask the System Administrator if any temporary accounts have been added to the sy
 Verify each of these accounts has an expiration date that is within "72" hours of its creation.
 
 If any temporary accounts have no expiration date set or do not expire within "72" hours of their creation, this is a finding.'
-  desc 'fix', 'In the event temporary accounts are required, configure the SUSE operating system to terminate them after "72" hours. 
+  desc 'fix', 'In the event temporary accounts are required, configure the SUSE operating system to terminate them after "72" hours.
 
 For every temporary account, run the following command to set an expiration date on it, substituting "system_account_name" with the appropriate value:
 
@@ -34,4 +34,20 @@ For every temporary account, run the following command to set an expiration date
   tag 'documentable'
   tag cci: ['CCI-000016']
   tag nist: ['AC-2 (2)']
+
+  temporary_accounts = input('temporary_accounts')
+
+  if temporary_accounts.empty?
+    describe 'Temporary accounts' do
+      skip "input('temporary_accounts') is empty; ask the SA whether any temporary accounts exist and, for each, confirm an account expiration date within 72 hours of creation (chage -l <account>)."
+    end
+  else
+    accounts_without_expiry = shadow.where { temporary_accounts.include?(user) && expiry_date.to_s.strip.empty? }.users
+
+    describe 'Temporary accounts without an account expiration date (chage -E)' do
+      it 'should have an expiration date set on every temporary account' do
+        expect(accounts_without_expiry).to be_empty, "Temporary accounts with no expiration date set:\n\t- #{accounts_without_expiry.join("\n\t- ")}"
+      end
+    end
+  end
 end

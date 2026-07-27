@@ -17,14 +17,18 @@ If the command does not return anything, the returned line is commented out, or 
 
 Edit "/etc/pam.d/common-password" and edit the line containing "pam_cracklib.so" to contain the option "ocredit=-1" after the third column.'
   impact 0.5
-  tag check_id: 'C-38084r618957_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000266-GPOS-00101'
   tag gid: 'V-234896'
   tag rid: 'SV-234896r1009633_rule'
   tag stig_id: 'SLES-15-020270'
-  tag gtitle: 'SRG-OS-000266-GPOS-00101'
   tag fix_id: 'F-38047r618958_fix'
-  tag 'documentable'
-  tag cci: ['CCI-004066', 'CCI-001619']
-  tag nist: ['IA-5 (1) (h)', 'IA-5 (1) (a)']
+  tag cci: ['CCI-001619', 'CCI-004066']
+  tag nist: ['IA-5 (1) (a)', 'IA-5 (1) (h)']
+  tag 'host'
+  tag 'container'
+
+  describe pam('/etc/pam.d/common-password') do
+    its('lines') { should match_pam_rule('password requisite pam_cracklib.so').all_with_integer_arg('ocredit', '<=', input('ocredit')) }
+  end
 end

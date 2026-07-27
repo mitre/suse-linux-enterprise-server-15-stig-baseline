@@ -18,16 +18,14 @@ By using this IS (which includes any device attached to this IS), you consent to
 
 -This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
 
--Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details."
-
-'
+-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details."'
   desc 'check', %q(Verify the SUSE operating system displays the Standard Mandatory DOD Notice and Consent Banner before granting access to the system via SSH.
 
 Check the issue file to verify it contains one of the DOD required banners. If it does not, this is a finding.
 
 > more /etc/issue
 
-The output must display the following DOD-required banner text: 
+The output must display the following DOD-required banner text:
 
 "You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
 
@@ -81,15 +79,58 @@ By using this IS (which includes any device attached to this IS), you consent to
 
 -Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details."'
   impact 0.5
-  tag check_id: 'C-37993r1184452_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000023-GPOS-00006'
+  tag satisfies: ['SRG-OS-000023-GPOS-00006', 'SRG-OS-000228-GPOS-00088']
   tag gid: 'V-234805'
   tag rid: 'SV-234805r1184454_rule'
   tag stig_id: 'SLES-15-010040'
-  tag gtitle: 'SRG-OS-000023-GPOS-00006'
   tag fix_id: 'F-37956r1184453_fix'
-  tag satisfies: ['SRG-OS-000023-GPOS-00006', 'SRG-OS-000228-GPOS-00088']
-  tag 'documentable'
   tag cci: ['CCI-000048', 'CCI-001384', 'CCI-001385', 'CCI-001386', 'CCI-001387', 'CCI-001388']
-  tag nist: ['AC-8 a', 'AC-8 c 1', 'AC-8 c 2', 'AC-8 c 2', 'AC-8 c 2', 'AC-8 c 3']
+  tag nist: ['AC-8 a', 'AC-8 c 1', 'AC-8 c 2', 'AC-8 c 3']
+  tag 'host'
+  tag 'container-conditional'
+
+  only_if('Control not applicable - SSH is not installed within containerized RHEL', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system) || file('/etc/ssh/sshd_config').exist?
+  }
+
+  # When Banner is commented, not found, disabled, or the specified file does not exist, this is a finding.
+  banner_file = sshd_config.banner
+
+  # Banner property is commented out.
+  if banner_file.nil?
+    describe 'The SSHD Banner is not set' do
+      subject { banner_file.nil? }
+      it { should be false }
+    end
+  end
+
+  # Banner property is set to "none"
+  if !banner_file.nil? && !banner_file.match(/none/i).nil?
+    describe 'The SSHD Banner is disabled' do
+      subject { banner_file.match(/none/i).nil? }
+      it { should be true }
+    end
+  end
+
+  # Banner property provides a path to a file, however, it does not exist.
+  if !banner_file.nil? && banner_file.match(/none/i).nil? && !file(banner_file).exist?
+    describe 'The SSHD Banner is set, but, the file does not exist' do
+      subject { file(banner_file).exist? }
+      it { should be true }
+    end
+  end
+
+  # Banner property provides a path to a file and it exists.
+  next unless !banner_file.nil? && banner_file.match(/none/i).nil? && file(banner_file).exist?
+
+  banner = file(banner_file).content.gsub(/[\r\n\s]/, '')
+  expected_banner = input('banner_message_text_ral').gsub(/[\r\n\s]/, '')
+
+  describe 'The SSHD Banner' do
+    it 'is set to the standard banner and has the correct text' do
+      expect(banner).to eq(expected_banner), 'Banner does not match expected text'
+    end
+  end
 end

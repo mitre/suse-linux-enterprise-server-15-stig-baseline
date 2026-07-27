@@ -15,14 +15,28 @@ If the command does not return anything, the returned line is commented out, or 
 
 Edit "/etc/pam.d/common-password" and edit the line containing "pam_cracklib.so" to contain the option "ucredit=-1" after the third column.'
   impact 0.5
-  tag check_id: 'C-38070r618915_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000069-GPOS-00037'
   tag gid: 'V-234882'
   tag rid: 'SV-234882r1009621_rule'
   tag stig_id: 'SLES-15-020130'
-  tag gtitle: 'SRG-OS-000069-GPOS-00037'
   tag fix_id: 'F-38033r618916_fix'
-  tag 'documentable'
-  tag cci: ['CCI-004066', 'CCI-000192']
-  tag nist: ['IA-5 (1) (h)', 'IA-5 (1) (a)']
+  tag cci: ['CCI-000192', 'CCI-004066']
+  tag nist: ['IA-5 (1) (a)', 'IA-5 (1) (h)']
+  tag 'host'
+  tag 'container'
+
+  cracklib_line = file('/etc/pam.d/common-password').content.to_s.lines.map(&:strip).reject { |l| l.start_with?('#') }.find { |l| l.include?('pam_cracklib.so') }
+
+  describe 'The pam_cracklib.so line in /etc/pam.d/common-password' do
+    it 'should be present and not commented out' do
+      expect(cracklib_line).not_to be_nil, 'No pam_cracklib.so line found in /etc/pam.d/common-password'
+    end
+    it 'should have `requisite` as the second column' do
+      expect(cracklib_line.to_s.split[1]).to eq('requisite'), "Second column is '#{cracklib_line.to_s.split[1]}', expected 'requisite'"
+    end
+    it 'should contain ucredit=-1' do
+      expect(cracklib_line).to match(/\bucredit=-1\b/), 'pam_cracklib.so line does not contain ucredit=-1'
+    end
+  end
 end

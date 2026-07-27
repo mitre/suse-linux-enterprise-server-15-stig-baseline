@@ -55,4 +55,16 @@ Note: "pam_apparmor" must have properly configured profiles. All configurations 
   tag 'documentable'
   tag cci: ['CCI-001764', 'CCI-001774', 'CCI-002165', 'CCI-002233', 'CCI-002235']
   tag nist: ['CM-7 (2)', 'CM-7 (5) (b)', 'AC-3 (4)', 'AC-6 (8)', 'AC-6 (10)']
+
+  only_if('This control is Not Applicable to containers (AppArmor is enforced by the host kernel)', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system)
+  }
+
+  describe package('pam_apparmor') do
+    it { should be_installed }
+  end
+
+  describe service('apparmor') do
+    it { should be_running }
+  end
 end

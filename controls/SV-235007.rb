@@ -16,14 +16,22 @@ Add the following line in "/etc/ssh/sshd_config", or uncomment the line and set 
 
 IgnoreUserKnownHosts yes'
   impact 0.5
-  tag check_id: 'C-38195r951641_chk'
   tag severity: 'medium'
+  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag gid: 'V-235007'
   tag rid: 'SV-235007r991589_rule'
   tag stig_id: 'SLES-15-040230'
-  tag gtitle: 'SRG-OS-000480-GPOS-00227'
   tag fix_id: 'F-38158r619291_fix'
-  tag 'documentable'
   tag cci: ['CCI-000366']
   tag nist: ['CM-6 b']
+  tag 'host'
+  tag 'container-conditional'
+
+  only_if('This control is Not Applicable to containers without SSH installed', impact: 0.0) {
+    !%w[docker podman kubepods lxc].include?(virtualization.system) || directory('/etc/ssh').exist?
+  }
+
+  describe sshd_config do
+    its('IgnoreUserKnownHosts') { should cmp 'yes' }
+  end
 end
