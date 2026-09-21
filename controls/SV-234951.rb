@@ -45,7 +45,7 @@ or issue the following command:
   audit_syscalls = %w[delete_module]
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   describe 'Syscall' do

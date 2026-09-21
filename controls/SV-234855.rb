@@ -38,7 +38,7 @@ Additional information on the configuration of multifactor authentication on the
   tag 'host'
 
   only_if('This requirement is Not Applicable inside the container', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   if input('alternate_mfa_method').to_s.empty?

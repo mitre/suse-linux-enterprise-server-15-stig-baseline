@@ -33,7 +33,7 @@ Defaults !runaspw'
   tag 'host'
 
   only_if('Control not applicable within a container', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   describe sudoers(input('sudoers_config_files')) do

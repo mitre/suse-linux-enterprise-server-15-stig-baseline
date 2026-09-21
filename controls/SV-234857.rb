@@ -31,7 +31,7 @@ memcache_timeout = 86400'
   sssd_config = parse_config_file('/etc/sssd/sssd.conf')
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   nss_timeout = sssd_config.params.dig('nss', 'memcache_timeout')

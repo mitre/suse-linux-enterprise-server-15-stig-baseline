@@ -28,7 +28,7 @@ http://csrc.nist.gov/groups/STM/cmvp/documents/140-1/140sp/140sp2435.pdf'
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   describe kernel_parameter('crypto.fips_enabled') do

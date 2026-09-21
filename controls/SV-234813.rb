@@ -37,7 +37,7 @@ Set the proper permissions for the "/etc/profile.d/autologout.sh" file with the 
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   timeout = input('system_inactivity_timeout')

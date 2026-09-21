@@ -43,7 +43,7 @@ Note: Manual changes to the listed files may be overwritten by the "pam-config" 
   tag nist: ['AC-7 a', 'AC-7 b']
   tag 'host'
 
-  if %w[docker podman kubepods lxc].include?(virtualization.system)
+  if virtualization.container_system?
     impact 0.0
     describe 'Control not applicable in a container' do
       skip 'SELinux controls Not Applicable in a container'

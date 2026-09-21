@@ -36,7 +36,7 @@ Change the mode of public host key files under "/etc/ssh" to "0644" with the fol
   tag 'container-conditional'
 
   only_if('This control is Not Applicable to containers without SSH installed', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system) || directory('/etc/ssh').exist?
+    !virtualization.container_system? || directory('/etc/ssh').exist?
   }
 
   ssh_host_key_dirs = input('ssh_host_key_dirs').join(' ')

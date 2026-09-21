@@ -55,7 +55,7 @@ https://documentation.suse.com/sles/15-SP1/html/SLES-all/cha-security-cryptofs.h
 
   # TODO: This should really have a resource
 
-  if %w[docker podman kubepods lxc].include?(virtualization.system)
+  if virtualization.container_system?
     impact 0.0
     describe_and_skip('Disk Encryption and Data At Rest Implementation is handled on the Container Host')
   elsif input('data_at_rest_exempt')

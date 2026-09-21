@@ -32,7 +32,7 @@ If "0" is not the system's default value, add or update the following line in "/
   tag 'host'
 
   only_if('Control not applicable within a container', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   if input('packet_forwarding_enabled')

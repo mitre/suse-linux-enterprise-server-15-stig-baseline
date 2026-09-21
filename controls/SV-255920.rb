@@ -33,7 +33,7 @@ Restart the "sshd" service for changes to take effect:
   openssh_present = package('openssh-server').installed?
 
   only_if('This requirement is Not Applicable in the container without open-ssh installed', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system) || openssh_present
+    !virtualization.container_system? || openssh_present
   }
 
   if input('allow_container_openssh_server') == false

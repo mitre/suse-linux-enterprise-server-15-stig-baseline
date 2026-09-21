@@ -92,7 +92,7 @@ By using this IS (which includes any device attached to this IS), you consent to
   tag 'container-conditional'
 
   only_if('Control not applicable - SSH is not installed within containerized RHEL', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system) || file('/etc/ssh/sshd_config').exist?
+    !virtualization.container_system? || file('/etc/ssh/sshd_config').exist?
   }
 
   # When Banner is commented, not found, disabled, or the specified file does not exist, this is a finding.

@@ -57,7 +57,7 @@ Note: "pam_apparmor" must have properly configured profiles. All configurations 
   tag nist: ['CM-7 (2)', 'CM-7 (5) (b)', 'AC-3 (4)', 'AC-6 (8)', 'AC-6 (10)']
 
   only_if('This control is Not Applicable to containers (AppArmor is enforced by the host kernel)', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   describe package('pam_apparmor') do

@@ -29,7 +29,7 @@ To configure the system time zone to use UTC or GMT, run the following command, 
   tag nist: ['AU-8 b']
 
   only_if('This control is Not Applicable to containers (the host controls the system clock and time zone)', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   describe 'Configured system time zone' do

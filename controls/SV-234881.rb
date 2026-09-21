@@ -27,7 +27,7 @@ PrintLastLog yes'
   tag 'host'
   tag 'container-conditional'
 
-  if %w[docker podman kubepods lxc].include?(virtualization.system) && !file('/etc/ssh/sshd_config').exist?
+  if virtualization.container_system? && !file('/etc/ssh/sshd_config').exist?
     impact 0.0
     describe 'Control not applicable - SSH is not installed within containerized RHEL' do
       skip 'Control not applicable - SSH is not installed within containerized RHEL'

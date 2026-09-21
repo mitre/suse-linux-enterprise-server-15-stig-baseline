@@ -57,7 +57,7 @@ logout=''
   tag 'host'
 
   only_if('This requirement is Not Applicable in the container', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   no_gui = command('ls /usr/share/xsessions/*').stderr.match?(/No such file or directory/)

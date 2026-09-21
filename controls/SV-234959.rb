@@ -44,7 +44,7 @@ Set the correct permissions with the following command:
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
   exact_modes = input('file_modes')['exact']
   audit_perm_rules = [

@@ -24,7 +24,7 @@ Migrate "/var" onto the separate file system/partition.'
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   describe mount('/var') do

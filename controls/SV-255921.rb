@@ -47,7 +47,7 @@ Reload settings from all system configuration files with the following command:
   tag nist: ['SC-4']
 
   only_if('This control is Not Applicable to containers (the host controls kernel parameters)', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   describe kernel_parameter('kernel.dmesg_restrict') do

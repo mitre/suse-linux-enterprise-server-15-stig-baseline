@@ -50,7 +50,7 @@ For the changes to take effect immediately, start the service with the following
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   describe systemd_service('sshd.service') do

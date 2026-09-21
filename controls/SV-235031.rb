@@ -39,7 +39,7 @@ DISPLAYMANAGER_PASSWORD_LESS_LOGIN="no"'
   tag 'host'
 
   only_if('This requirement is Not Applicable inside a container, the containers host manages the containers filesystems') {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   if package('gnome-desktop3').installed?

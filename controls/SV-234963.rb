@@ -45,7 +45,7 @@ or issue the following command:
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   # execve is audited for setuid (uid!=euid, euid=0) and setgid (gid!=egid, egid=0) privilege escalation.

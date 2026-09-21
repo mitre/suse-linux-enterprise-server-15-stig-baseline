@@ -32,7 +32,7 @@ Note: The example will be for the doduser user, who has a home directory of "/ho
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   ignore_shells = input('non_interactive_shells').join('|')

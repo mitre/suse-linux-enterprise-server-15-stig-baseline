@@ -28,7 +28,7 @@ StrictModes yes'
   tag 'container-conditional'
 
   only_if('This control is Not Applicable to containers without SSH installed', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system) || directory('/etc/ssh').exist?
+    !virtualization.container_system? || directory('/etc/ssh').exist?
   }
 
   describe sshd_config do
