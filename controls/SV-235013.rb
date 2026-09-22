@@ -32,7 +32,7 @@ X11Forwarding no'
   tag 'container-conditional'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system) || file('/etc/ssh/sshd_config').exist?
+    !virtualization.container_system? || file('/etc/ssh/sshd_config').exist?
   }
 
   if input('x11_forwarding_required')

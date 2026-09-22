@@ -48,7 +48,7 @@ Generate an updated "grub.conf" file with the new password using the following c
   tag 'host'
 
   only_if('Control not applicable within a container without sudo enabled', impact: 0.0) do
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   end
 
   grubfile = file(input('grub_conf_path'))

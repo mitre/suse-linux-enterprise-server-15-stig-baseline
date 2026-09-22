@@ -31,7 +31,7 @@ Assign a home directory to users via the usermod command:
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   exempt_users = input('exempt_home_users')

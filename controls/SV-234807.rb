@@ -58,7 +58,7 @@ By using this IS (which includes any device attached to this IS), you consent to
   tag 'host'
 
   only_if('Control not applicable within a container', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   no_gui = command('ls /usr/share/xsessions/*').stderr.match?(/No such file or directory/)

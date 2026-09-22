@@ -27,7 +27,7 @@ Set the promiscuous mode of an interface to off with the following command:
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   if input('promiscuous_mode_permitted')

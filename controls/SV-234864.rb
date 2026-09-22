@@ -39,7 +39,7 @@ Note: Per requirement SLES-15-010418, the "mailx" package must be installed on t
   file_integrity_tool = input('file_integrity_tool')
 
   only_if('Control not applicable within a container', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   describe package(file_integrity_tool) do

@@ -75,7 +75,7 @@ By using this IS (which includes any device attached to this IS), you consent to
   tag nist: ['AC-8 a']
 
   only_if('Control not applicable within a container or when GDM is not installed', impact: 0.0) do
-    !%w[docker podman kubepods lxc].include?(virtualization.system) && command('rpm -q gdm').exit_status.zero?
+    !virtualization.container_system? && command('rpm -q gdm').exit_status.zero?
   end
 
   banner = file('/etc/issue').content.gsub(/[\r\n\s]/, '')

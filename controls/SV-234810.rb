@@ -34,7 +34,7 @@ Run the following command to configure the SUSE operating system to allow the us
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   if package('gnome-desktop3').installed?

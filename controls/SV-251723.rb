@@ -38,7 +38,7 @@ Add or modify the following line:
   tag 'host'
 
   only_if('Control not applicable within a container', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   include_directives = command('grep -i include /etc/sudoers').stdout.strip

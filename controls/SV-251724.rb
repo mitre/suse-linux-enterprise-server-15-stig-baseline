@@ -32,7 +32,7 @@ Remove any occurrences of "pam_succeed_if" in the file.'
   tag 'host'
   tag 'container-conditional'
 
-  if %w[docker podman kubepods lxc].include?(virtualization.system) && !command('sudo').exist?
+  if virtualization.container_system? && !command('sudo').exist?
     impact 0.0
     describe 'Control not applicable within a container without sudo enabled' do
       skip 'Control not applicable within a container without sudo enabled'

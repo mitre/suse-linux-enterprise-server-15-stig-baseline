@@ -29,7 +29,7 @@ disk_full_action = syslog'
   tag nist: ['AU-4 (1)']
 
   only_if('This control is Not Applicable to containers (auditd runs on the host)', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   allowed = input('disk_full_action').map(&:downcase)

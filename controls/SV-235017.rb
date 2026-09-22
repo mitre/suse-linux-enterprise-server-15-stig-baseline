@@ -30,7 +30,7 @@ If "0" is not the system's default value, add or update the following line in "/
   tag 'host'
 
   only_if('Control not applicable within a container', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   parameter = 'net.ipv6.conf.default.accept_source_route'

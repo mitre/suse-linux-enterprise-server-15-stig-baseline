@@ -30,7 +30,7 @@ If any world-writable directories are not owned by root, sys, bin, or an applica
   tag 'host'
 
   only_if('Control not applicable within a container', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   allowed_groups = %w[root sys bin] + input('application_groups')

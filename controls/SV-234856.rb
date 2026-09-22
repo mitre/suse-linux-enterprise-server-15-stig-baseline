@@ -28,7 +28,7 @@ blacklist usb-storage'
   tag 'host'
 
   only_if('This control is Not Applicable to containers or virtualized environments', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system) || !virtualization.role.eql?('guest')
+    !virtualization.container_system? || !virtualization.role.eql?('guest')
   }
 
   describe kernel_module('usb-storage') do

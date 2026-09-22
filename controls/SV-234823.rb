@@ -29,7 +29,7 @@ Turn off the automount service with the following commands:
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   if input('autofs_required') == true

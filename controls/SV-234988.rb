@@ -32,7 +32,7 @@ And reload the daemon to take effect
   tag 'host'
 
   only_if('Control not applicable within a container', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   describe command('systemctl is-enabled ctrl-alt-del.target') do

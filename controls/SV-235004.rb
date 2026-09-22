@@ -36,7 +36,7 @@ Migrate the nonprivileged local interactive user home directories onto the separ
   tag 'host'
 
   only_if('This requirement is Not Applicable inside a container; the host manages the container filesystem') {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   ignore_shells = input('non_interactive_shells').join('|')

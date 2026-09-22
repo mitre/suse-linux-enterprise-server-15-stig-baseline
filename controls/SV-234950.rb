@@ -43,7 +43,7 @@ or issue the following command:
   audit_command = '/sbin/pam_timestamp_check'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   describe 'Command' do

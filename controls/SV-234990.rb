@@ -37,7 +37,7 @@ Reload the daemon for this change to take effect:
   tag 'host'
 
   only_if('Control not applicable within a container without sudo enabled', impact: 0.0) do
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   end
 
   describe command('systemd-analyze cat-config systemd/system.conf') do

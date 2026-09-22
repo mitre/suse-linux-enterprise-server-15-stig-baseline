@@ -27,7 +27,7 @@ If any active message labels in the file do not have a line to send log messages
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   if input('alternative_logging_method') == ''

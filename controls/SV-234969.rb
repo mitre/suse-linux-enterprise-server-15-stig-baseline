@@ -47,7 +47,7 @@ Set the value of the "space_left" keyword in "/etc/audit/auditd.conf" to 25 perc
   tag 'host'
 
   only_if('This requirement is Not Applicable in the container', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   # space_left must be >= the configured percentage of the audit partition so notification fires before the volume fills.

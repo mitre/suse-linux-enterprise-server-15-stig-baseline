@@ -30,7 +30,7 @@ The audit daemon must be restarted for the changes to take effect.
   tag 'host'
 
   only_if('This control is Not Applicable to containers', impact: 0.0) {
-    !%w[docker podman kubepods lxc].include?(virtualization.system)
+    !virtualization.container_system?
   }
 
   # A "task,never" rule disables syscall auditing; it must be absent both at runtime and in the static rules.
