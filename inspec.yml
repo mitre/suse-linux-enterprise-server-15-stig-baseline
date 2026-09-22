@@ -7,7 +7,7 @@ license: Apache-2.0
 summary: InSpec profile aligned to STIG Guidance for SUSE Linux Enterprise
   Server 15 Security Technical Implementation Guide
 description: null
-version: 2.7.0
+version: 2.7.1
 supports: []
 depends:
   - name: inspec-profile-resources
