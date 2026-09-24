@@ -3,7 +3,7 @@ This InSpec Profile was created to facilitate testing and auditing of `SUSE Linu
 infrastructure and applications when validating compliancy with [Department of Defense (DoD) STIG](https://public.cyber.mil/stigs/)
 requirements.
 
-- Profile Version: **2.7.0**
+- Profile Version: **2.7.2**
 - Benchmark Date: **01 Apr 2026**
 - Benchmark Version: **Version 2 Release 7 (V2R7)**
 
